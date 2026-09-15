@@ -1,0 +1,114 @@
+/*
+ * Sheets of paper. Structure:
+ *
+ *   <div class="paper paper--ruled" style="--tilt:-.5deg">   tilt + shadow
+ *     <div class="paper-face">…</div>                        surface, grain, creases, decorations
+ *   </div>
+ *
+ * Styles (picked by src/lib/paper.ts from the recipe title):
+ *   paper--clean  a plain sheet with a folded corner
+ *   paper--ruled  ring-notebook paper: punched holes, margin line, faint rules
+ *   paper--torn   torn off a pad along the top edge
+ *   paper--taped  a note held up with a strip of masking tape
+ * Every sheet also shows two faint creases, as if it had been folded in thirds.
+ */
+
+:root {
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.22 0 0 0 0 0.12 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --paper-crease:
+    linear-gradient(180deg,
+      transparent 0 33.3%,
+      rgba(60, 35, 20, .09) calc(33.3% + 1px),
+      rgba(255, 255, 255, .55) calc(33.3% + 2px),
+      transparent calc(33.3% + 5px),
+      transparent 66.6%,
+      rgba(60, 35, 20, .09) calc(66.6% + 1px),
+      rgba(255, 255, 255, .55) calc(66.6% + 2px),
+      transparent calc(66.6% + 5px));
+  --paper-torn-edge: polygon(
+    0% 10px, 4% 4px, 8% 9px, 13% 3px, 17% 8px, 22% 5px, 26% 11px, 31% 4px, 35% 8px, 40% 2px,
+    44% 9px, 49% 5px, 53% 10px, 58% 3px, 62% 8px, 67% 4px, 71% 10px, 76% 5px, 80% 9px, 85% 2px,
+    89% 8px, 94% 4px, 100% 9px, 100% 100%, 0% 100%);
+}
+
+.paper {
+  position: relative;
+  --tilt: 0deg;
+  transform: rotate(var(--tilt));
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, .42));
+}
+
+.paper-face {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 3px;
+  background-color: var(--cream-light);
+  background-image: var(--paper-crease);
+  color: var(--ink);
+}
+
+.paper-face::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background-image: var(--paper-grain);
+  opacity: .16;
+  mix-blend-mode: multiply;
+}
+
+.paper--ruled .paper-face {
+  --holes: 44px;
+  background-image:
+    radial-gradient(circle at 17px 50%, var(--bg) 0 5px, rgba(0, 0, 0, .22) 5.5px, transparent 7.5px),
+    linear-gradient(90deg, transparent 0 40px, rgba(190, 80, 80, .45) 40px 41px, transparent 41px),
+    repeating-linear-gradient(180deg, transparent 0 27px, rgba(120, 80, 50, .13) 27px 28px),
+    var(--paper-crease);
+  background-size: 100% var(--holes), 100% 100%, 100% 100%, 100% 100%;
+  background-repeat: repeat-y, no-repeat, no-repeat, no-repeat;
+  background-position: 0 6px, 0 0, 0 0, 0 0;
+  --paper-left: 30px;
+}
+
+.paper--torn .paper-face {
+  clip-path: var(--paper-torn-edge);
+  border-radius: 0 0 3px 3px;
+  --paper-top: 10px;
+}
+
+.paper--taped .paper-face::after {
+  content: '';
+  position: absolute;
+  z-index: 6;
+  top: -6px;
+  left: 50%;
+  width: 96px;
+  height: 26px;
+  transform: translateX(-50%) rotate(-2.5deg);
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .18) 0 2px, transparent 2px 5px),
+    rgba(226, 204, 168, .78);
+  border: 1px solid rgba(90, 60, 30, .12);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .12);
+}
+
+.paper--clean .paper-face {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 26px), calc(100% - 26px) 100%, 0 100%);
+}
+.paper--clean .paper-face::after {
+  content: '';
+  position: absolute;
+  z-index: 6;
+  right: 0;
+  bottom: 0;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(to top left, transparent 0 50%, var(--cream-deep) 50%, var(--sand) 100%);
+  box-shadow: -2px -2px 4px rgba(0, 0, 0, .08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper { transform: none; }
+}

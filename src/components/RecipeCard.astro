@@ -1,0 +1,109 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCategory } from '../config/categories';
+import { EFFORT_LABELS } from '../config/site';
+import { paperFor } from '../lib/paper';
+import Icon from './Icon.astro';
+import Meter from './Meter.astro';
+import PairsBar from './PairsBar.astro';
+import TagChip from './TagChip.astro';
+
+interface Props {
+  recipe: CollectionEntry<'recipes'>;
+}
+const { recipe } = Astro.props;
+const d = recipe.data;
+const cat = getCategory(d.category);
+const paper = paperFor(d.name);
+const href = `${import.meta.env.BASE_URL}recipes/${recipe.id}/`;
+const searchText = [d.name, ...d.tags, d.profile].join(' ').toLowerCase();
+---
+<a
+  class:list={['card', 'paper', `paper--${paper.style}`]}
+  href={href}
+  style={`--c:${cat.color};--tilt:${paper.tilt}deg`}
+  data-recipe={recipe.id}
+  data-category={d.category}
+  data-tags={d.tags.join('|')}
+  data-search={searchText}
+>
+  <div class="face paper-face">
+    <div class="head">
+      <Icon name={d.icon ?? cat.icon} size={46} class="head-icon" />
+      <span class="head-cat">{cat.label}</span>
+    </div>
+    <h2 class="name">{d.name}</h2>
+    <div class="facts">
+      <div class="fact"><span class="label-sm">Prep</span><span class="fact-v">{d.prep}</span></div>
+      <div class="fact"><span class="label-sm">Effort</span><span class="fact-v">{EFFORT_LABELS[d.effort]}</span></div>
+      <div class="fact"><span class="label-sm">Profile</span><span class="fact-v">{d.profile}</span></div>
+    </div>
+    <div class="meters">
+      <Meter label="Effort" value={d.effort} color={cat.color} />
+      <Meter label="Sweetness" value={d.sweetness} color={cat.color} />
+      <Meter label="Bitterness" value={d.bitterness} color={cat.color} />
+    </div>
+    <div class="pairs-wrap">
+      <PairsBar value={d.pairs} />
+    </div>
+    {d.tags.length > 0 && (
+      <div class="tags">
+        {d.tags.map((t) => <TagChip tag={t} />)}
+      </div>
+    )}
+  </div>
+</a>
+
+<style>
+  .card {
+    display: block;
+    color: inherit;
+    transition: transform .22s cubic-bezier(.2, .8, .2, 1), filter .22s ease;
+  }
+  .card:hover {
+    color: inherit;
+    transform: rotate(0deg) translateY(-5px);
+    filter: drop-shadow(0 22px 30px rgba(0, 0, 0, .5));
+  }
+  .card:focus-visible { outline: 2px dashed var(--accent); outline-offset: 6px; }
+  .card[hidden] { display: none; }
+
+  .face {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: calc(20px + var(--paper-top, 0px)) 22px 22px calc(22px + var(--paper-left, 0px));
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--c);
+    color: var(--c);
+  }
+  .head-cat {
+    font: 600 11px/1 var(--sans);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  .name {
+    margin: 0;
+    font: 500 24px/1.15 var(--serif);
+    color: var(--ink);
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px dotted var(--dot);
+  }
+  .fact { display: flex; flex-direction: column; gap: 3px; }
+  .fact-v { font: 600 15px/1 var(--sans); color: var(--ink-mid); }
+  .meters { display: flex; flex-direction: column; gap: 9px; }
+  .pairs-wrap { margin-top: auto; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+</style>

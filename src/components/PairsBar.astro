@@ -1,0 +1,47 @@
+---
+interface Props {
+  value: number;
+}
+const { value } = Astro.props;
+---
+<div class="pairs">
+  <span class="label-sm">Pairs with</span>
+  <div class="track">
+    <span class="dot" style={`left:${value}%`} />
+  </div>
+  <div class="scale">
+    <span>Dark</span><span>Milk</span><span>White</span>
+  </div>
+</div>
+
+<style>
+  .pairs { display: flex; flex-direction: column; gap: 7px; }
+  .track {
+    position: relative;
+    height: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--sand-dark);
+    background: linear-gradient(90deg,
+      var(--panel) 0%, var(--panel) 33%,
+      var(--pair-mid) 33%, var(--pair-mid) 66%,
+      var(--pair-light) 66%, var(--pair-light) 100%);
+  }
+  .dot {
+    position: absolute;
+    top: -4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--cream-light);
+    border: 2px solid var(--ink-mid);
+    transform: translateX(-50%);
+  }
+  .scale {
+    display: flex;
+    justify-content: space-between;
+    font: 500 10px/1 var(--sans);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>

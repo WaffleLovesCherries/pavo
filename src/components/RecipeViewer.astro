@@ -1,0 +1,73 @@
+---
+import Drawer from './Drawer.astro';
+---
+<Drawer name="viewer" width="min(1040px, 88vw)" closeLabel="Close recipe">
+  <div class="view" data-recipe-view-body></div>
+</Drawer>
+
+<script>
+  import { setupDrawer } from '../lib/drawer';
+
+  const rootEl = document.querySelector<HTMLElement>('[data-drawer="viewer"]');
+  const sheetEl = rootEl?.querySelector<HTMLElement>('[data-drawer-sheet]');
+  const bodyEl = rootEl?.querySelector<HTMLElement>('[data-recipe-view-body]');
+  const eyebrowEl = rootEl?.querySelector<HTMLElement>('[data-drawer-eyebrow]');
+  const titleEl = rootEl?.querySelector<HTMLElement>('[data-drawer-title]');
+
+  if (rootEl && sheetEl && bodyEl && eyebrowEl && titleEl) {
+    const [root, sheet, body, eyebrow, title] = [rootEl, sheetEl, bodyEl, eyebrowEl, titleEl];
+    const siteTitle = document.title;
+    const drawer = setupDrawer(root, {
+      focus: () => root.querySelector<HTMLElement>('button[data-drawer-close]'),
+      onClose: () => {
+        document.title = siteTitle;
+        if (history.state?.recipe) history.back();
+      },
+    });
+
+    function show(id: string): boolean {
+      const tpl = document.querySelector<HTMLTemplateElement>(`template[data-recipe-view="${CSS.escape(id)}"]`);
+      if (!tpl) return false;
+      const { name = '', eyebrow: eb = '', color = '', paper = 'clean' } = tpl.dataset;
+
+      body.replaceChildren(tpl.content.cloneNode(true));
+      body.scrollTop = 0;
+      eyebrow.textContent = eb;
+      title.textContent = name;
+      sheet.style.setProperty('--c', color);
+      for (const c of [...sheet.classList]) if (c.startsWith('paper--')) sheet.classList.remove(c);
+      sheet.classList.add(`paper--${paper}`);
+      document.title = `${name} · ${siteTitle}`;
+      drawer.open();
+      return true;
+    }
+
+    document.addEventListener('click', (e) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const card = (e.target as Element).closest<HTMLAnchorElement>('a[data-recipe]');
+      const id = card?.dataset.recipe;
+      if (!card || !id) return;
+      if (!show(id)) return;
+      e.preventDefault();
+      history.pushState({ recipe: id }, '', card.href);
+    });
+
+    window.addEventListener('popstate', (e) => {
+      const id = e.state?.recipe;
+      if (typeof id === 'string') show(id);
+      else drawer.close();
+    });
+  }
+</script>
+
+<style>
+  .view {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 30px 36px 52px calc(36px + var(--paper-left, 0px));
+  }
+  @media (max-width: 720px) {
+    .view { padding: 20px 20px 32px calc(20px + var(--paper-left, 0px)); }
+  }
+</style>

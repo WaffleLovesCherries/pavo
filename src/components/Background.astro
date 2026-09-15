@@ -1,0 +1,84 @@
+---
+import { BACKGROUND } from '../config/site';
+import { tileSize as computeTileSize } from '../lib/backgroundTile';
+
+const tileUrl = `${import.meta.env.BASE_URL}bg-tile.svg`;
+const tileSize = computeTileSize(BACKGROUND.tile);
+---
+<div
+  class="bg"
+  aria-hidden="true"
+  data-bg
+  data-tile={tileSize}
+  data-max-speed={BACKGROUND.maxSpeed}
+  data-dead-zone={BACKGROUND.deadZone}
+  style={`--tile:url("${tileUrl}");--tile-size:${tileSize}px`}
+></div>
+
+<style>
+  .bg {
+    position: fixed;
+    z-index: -1;
+    top: calc(-1 * var(--tile-size));
+    left: calc(-1 * var(--tile-size));
+    width: calc(100vw + 2 * var(--tile-size));
+    height: calc(100vh + 2 * var(--tile-size));
+    background-color: var(--panel);
+    background-image:
+      var(--tile),
+      conic-gradient(var(--panel-alt) 0 25%, var(--panel) 0 50%, var(--panel-alt) 0 75%, var(--panel) 0);
+    background-size: var(--tile-size) var(--tile-size), 180px 180px;
+    will-change: transform;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  const el = document.querySelector<HTMLElement>('[data-bg]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = window.matchMedia('(pointer: fine)').matches;
+
+  if (el && !reduce && fine) {
+    const tile = Number(el.dataset.tile) || 720;
+    const maxSpeed = Number(el.dataset.maxSpeed) || 18;
+    const deadZone = Number(el.dataset.deadZone) || 0.08;
+
+    let vx = 0, vy = 0;
+    let cx = 0, cy = 0;
+    let ox = 0, oy = 0;
+    let last = performance.now();
+
+    function onMove(e: MouseEvent) {
+      const hw = window.innerWidth / 2;
+      const hh = window.innerHeight / 2;
+      let nx = (e.clientX - hw) / hw;
+      let ny = (e.clientY - hh) / hh;
+      const dist = Math.hypot(nx, ny);
+      if (dist < deadZone) { nx = 0; ny = 0; }
+      else {
+        const k = Math.min(1, (dist - deadZone) / (1 - deadZone)) / dist;
+        nx *= k; ny *= k;
+      }
+      vx = nx * maxSpeed;
+      vy = ny * maxSpeed;
+    }
+
+    function onLeave() { vx = 0; vy = 0; }
+
+    function frame(now: number) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      cx += (vx - cx) * Math.min(1, dt * 2);
+      cy += (vy - cy) * Math.min(1, dt * 2);
+      ox = (ox + cx * dt) % tile;
+      oy = (oy + cy * dt) % tile;
+      el!.style.transform = `translate3d(${ox.toFixed(2)}px, ${oy.toFixed(2)}px, 0)`;
+      requestAnimationFrame(frame);
+    }
+
+    window.addEventListener('mousemove', onMove, { passive: true });
+    document.addEventListener('mouseleave', onLeave);
+    window.addEventListener('blur', onLeave);
+    requestAnimationFrame(frame);
+  }
+</script>

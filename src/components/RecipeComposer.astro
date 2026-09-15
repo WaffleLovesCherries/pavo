@@ -1,0 +1,509 @@
+---
+import { CATEGORIES } from '../config/categories';
+import { EFFORT_LABELS } from '../config/site';
+import Drawer from './Drawer.astro';
+import Icon from './Icon.astro';
+
+const base = import.meta.env.BASE_URL;
+const iconNames = Object.keys(import.meta.glob('../icons/*.svg'))
+  .map((p) => p.replace(/^.*\/(.+)\.svg$/, '$1'))
+  .sort();
+const levels = [1, 2, 3, 4, 5];
+const meters = [
+  { key: 'effort', label: 'Effort', required: true, hint: EFFORT_LABELS.slice(1).join(' · ') },
+  { key: 'sweetness', label: 'Sweetness', required: true },
+  { key: 'bitterness', label: 'Bitterness', required: true },
+  { key: 'intensity', label: 'Intensity', required: false, hint: 'optional' },
+];
+const first = CATEGORIES[0]!;
+---
+<div data-composer data-sprite={`${base}icons.svg`}>
+<Drawer name="composer" eyebrow="New recipe" title="Write it down" width="min(720px, 88vw)" paper="clean" closeLabel="Close without saving">
+    <form class="form" data-composer-form style={`--c:${first.color}`}>
+      <label class="field">
+        <span class="label-sm">Name</span>
+        <input name="name" type="text" required autocomplete="off" placeholder="Hazelnut praline ganache" data-first-field />
+      </label>
+
+      <fieldset class="field cats">
+        <legend class="label-sm">Category</legend>
+        <div class="pills">
+          {CATEGORIES.map((c, i) => (
+            <label class="pill" style={`--pc:${c.color}`}>
+              <input type="radio" name="category" value={c.key} data-color={c.color} data-icon={c.icon} checked={i === 0} required />
+              <Icon name={c.icon} size={18} class="pill-icon" />
+              <span>{c.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <div class="row">
+        <label class="field">
+          <span class="label-sm">Prep</span>
+          <input name="prep" type="text" required autocomplete="off" placeholder="25 min + 12 h rest" />
+        </label>
+        <label class="field">
+          <span class="label-sm">Kind <em>optional</em></span>
+          <input name="kind" type="text" autocomplete="off" placeholder="filling, shell, glaze…" />
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="field">
+          <span class="label-sm">Profile</span>
+          <input name="profile" type="text" required autocomplete="off" placeholder="Nutty, tart red fruit…" />
+        </label>
+        <label class="field">
+          <span class="label-sm">Last made</span>
+          <input name="lastMade" type="date" data-today />
+        </label>
+      </div>
+
+      <div class="meters">
+        {meters.map((m) => (
+          <div class="meter" role="group" aria-label={m.label} data-optional={m.required ? undefined : ''}>
+            <span class="meter-label">{m.label}{m.hint && <em>{m.hint}</em>}</span>
+            <div class="pips">
+              {levels.map((i) => (
+                <label class="pip" title={`${i} of 5`}>
+                  <input type="radio" name={m.key} value={i} required={m.required} />
+                  <span></span>
+                </label>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="field pairs">
+        <label class="label-sm" for="composer-pairs">Pairs with</label>
+        <input id="composer-pairs" name="pairs" type="range" min="0" max="100" value="50" />
+        <div class="scale"><span>Dark</span><span>Milk</span><span>White</span></div>
+      </div>
+
+      <details class="field iconpick" data-iconpick>
+        <summary>
+          <span class="label-sm">Icon</span>
+          <span class="icon preview" data-icon-preview><svg aria-hidden="true"></svg></span>
+          <span class="preview-name" data-icon-name>Category default</span>
+          <svg class="chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5l3 3 3-3" /></svg>
+        </summary>
+        <div class="icons">
+          <label class="ico ico-default" title="Category default">
+            <input type="radio" name="icon" value="" checked />
+            <span class="ico-ring"></span>
+          </label>
+          {iconNames.map((n) => (
+            <label class="ico" title={n}>
+              <input type="radio" name="icon" value={n} />
+              <span class="icon"><svg data-icon={n} aria-hidden="true"></svg></span>
+            </label>
+          ))}
+        </div>
+      </details>
+
+      <label class="field">
+        <span class="label-sm">Tags <em>comma separated</em></span>
+        <input name="tags" type="text" autocomplete="off" placeholder="hazelnut, praline, bonbon" />
+      </label>
+
+      <fieldset class="field ingredients" data-ingredients>
+        <legend class="label-sm">Ingredients</legend>
+        <div class="ing-rows" data-ingredient-rows>
+          {[0, 1, 2].map(() => (
+            <div class="ing-row">
+              <input name="ing-name" type="text" autocomplete="off" placeholder="Dark couverture 64%" aria-label="Ingredient" />
+              <input name="ing-amount" type="text" autocomplete="off" placeholder="180 g" aria-label="Amount" />
+              <button type="button" class="ing-x" data-ingredient-remove aria-label="Remove ingredient">×</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" class="ing-add" data-ingredient-add>+ Add ingredient</button>
+      </fieldset>
+
+      <label class="field">
+        <span class="label-sm">Method <em>Markdown</em></span>
+        <textarea name="method" rows="8" placeholder={"1. Heat cream with invert sugar to 80°C.\n2. Pour over the couverture in thirds, emulsifying between each addition."}></textarea>
+      </label>
+
+      <footer class="foot">
+        <p class="hint">Downloads a <code>.md</code> file. Drop it in <code>src/content/recipes/</code> and push.</p>
+        <button type="submit" class="save">Save recipe</button>
+      </footer>
+    </form>
+</Drawer>
+</div>
+
+<template data-ingredient-template>
+  <div class="ing-row">
+    <input name="ing-name" type="text" autocomplete="off" placeholder="Ingredient" aria-label="Ingredient" />
+    <input name="ing-amount" type="text" autocomplete="off" placeholder="Amount" aria-label="Amount" />
+    <button type="button" class="ing-x" data-ingredient-remove aria-label="Remove ingredient">×</button>
+  </div>
+</template>
+
+<script>
+  import { setupDrawer } from '../lib/drawer';
+  import { buildRecipeMarkdown, slugify, type RecipeDraft } from '../lib/recipeMarkdown';
+
+  const wrapEl = document.querySelector<HTMLElement>('[data-composer]');
+  const rootEl = wrapEl?.querySelector<HTMLElement>('[data-drawer="composer"]');
+  const formEl = rootEl?.querySelector<HTMLFormElement>('[data-composer-form]');
+
+  if (wrapEl && rootEl && formEl) {
+    const root = rootEl;
+    const form = formEl;
+    const sprite = wrapEl.dataset.sprite ?? '';
+    const preview = root.querySelector<SVGElement>('[data-icon-preview] svg');
+    const previewName = root.querySelector<HTMLElement>('[data-icon-name]');
+    const rows = root.querySelector<HTMLElement>('[data-ingredient-rows]');
+    const rowTemplate = document.querySelector<HTMLTemplateElement>('[data-ingredient-template]');
+    let spriteLoaded = false;
+
+    const checkedCategory = () => form.querySelector<HTMLInputElement>('input[name="category"]:checked');
+
+    function refreshIcon() {
+      const chosen = form.querySelector<HTMLInputElement>('input[name="icon"]:checked')?.value ?? '';
+      const name = chosen || checkedCategory()?.dataset.icon || '';
+      if (preview) preview.innerHTML = name ? `<use href="${sprite}#i-${name}"></use>` : '';
+      if (previewName) previewName.textContent = chosen || 'Category default';
+    }
+
+    const drawer = setupDrawer(root, {
+      focus: () => form.querySelector<HTMLInputElement>('[data-first-field]'),
+      onClose: () => document.dispatchEvent(new CustomEvent('recipe-composer:closed')),
+    });
+
+    function open() {
+      if (!spriteLoaded) {
+        for (const svg of root.querySelectorAll<SVGElement>('svg[data-icon]')) {
+          svg.innerHTML = `<use href="${sprite}#i-${svg.dataset.icon}"></use>`;
+        }
+        spriteLoaded = true;
+      }
+      const today = form.querySelector<HTMLInputElement>('[data-today]');
+      if (today && !today.value) today.value = new Date().toISOString().slice(0, 10);
+      refreshIcon();
+      drawer.open();
+    }
+
+    document.addEventListener('recipe-composer:open', open);
+    document.addEventListener('recipe-composer:close', drawer.close);
+
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.name === 'category' && t.dataset.color) form.style.setProperty('--c', t.dataset.color);
+      if (t.name === 'category' || t.name === 'icon') refreshIcon();
+    });
+
+    form.addEventListener('click', (e) => {
+      const r = e.target as HTMLInputElement;
+      if (r.type !== 'radio' || !r.closest('[data-optional]')) return;
+      const group = form.querySelectorAll<HTMLInputElement>(`input[name="${r.name}"]`);
+      if (r.dataset.was === '1') {
+        r.checked = false;
+        r.dataset.was = '';
+      } else {
+        for (const o of group) o.dataset.was = '';
+        r.dataset.was = '1';
+      }
+    });
+
+    root.querySelector('[data-ingredient-add]')?.addEventListener('click', () => {
+      if (!rows || !rowTemplate) return;
+      rows.append(rowTemplate.content.cloneNode(true));
+      rows.querySelector<HTMLInputElement>('.ing-row:last-child input')?.focus();
+    });
+    rows?.addEventListener('click', (e) => {
+      const btn = (e.target as Element).closest('[data-ingredient-remove]');
+      const row = btn?.closest('.ing-row');
+      if (!btn || !row) return;
+      if (rows.children.length > 1) row.remove();
+      else for (const i of row.querySelectorAll('input')) i.value = '';
+    });
+
+    function download(fileName: string, text: string) {
+      const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
+      const a = Object.assign(document.createElement('a'), { href: url, download: fileName });
+      document.body.append(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const str = (k: string) => String(fd.get(k) ?? '').trim();
+      const num = (k: string) => Number(fd.get(k) ?? 0);
+      const names = fd.getAll('ing-name').map(String);
+      const amounts = fd.getAll('ing-amount').map(String);
+
+      const draft: RecipeDraft = {
+        name: str('name'),
+        category: str('category'),
+        icon: str('icon') || undefined,
+        kind: str('kind') || undefined,
+        prep: str('prep'),
+        effort: num('effort'),
+        sweetness: num('sweetness'),
+        bitterness: num('bitterness'),
+        intensity: num('intensity') || undefined,
+        profile: str('profile'),
+        pairs: num('pairs'),
+        tags: str('tags').split(',').map((t) => t.trim()).filter(Boolean),
+        lastMade: str('lastMade') || undefined,
+        ingredients: names.map((n, i) => [n, amounts[i] ?? ''] as [string, string]),
+        method: str('method'),
+      };
+
+      download(`${slugify(draft.name)}.md`, buildRecipeMarkdown(draft));
+      form.reset();
+      for (const r of form.querySelectorAll<HTMLInputElement>('[data-optional] input')) r.dataset.was = '';
+      form.style.setProperty('--c', checkedCategory()?.dataset.color ?? '');
+      drawer.close();
+    });
+  }
+</script>
+
+<style>
+  .form {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 26px 36px 0 calc(36px + var(--paper-left, 0px));
+    overflow-y: auto;
+  }
+  .form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .form legend { padding: 0; }
+
+  .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .field em {
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-transform: none;
+    color: var(--sand-dark);
+    margin-left: 6px;
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .form input[type="text"],
+  .form input[type="date"],
+  .form textarea {
+    width: 100%;
+    border: 1px solid var(--sand-dark);
+    background: var(--cream-lighter);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font: 400 14px/1.4 var(--sans);
+    color: var(--ink);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .form textarea { resize: vertical; font-family: var(--serif); font-size: 15px; line-height: 1.55; }
+  .form input::placeholder, .form textarea::placeholder { color: var(--sand-dark); }
+  .form input:focus, .form textarea:focus {
+    outline: 0;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(169, 113, 63, .18);
+  }
+
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font: 600 12px/1 var(--sans);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--pc);
+    color: var(--pc);
+    transition: background .15s ease, color .15s ease;
+  }
+  .pill input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .pill :global(.pill-icon) { flex: none; }
+  .pill:hover { filter: brightness(1.08); }
+  .pill:has(input:checked) { background: var(--pc); color: var(--cream-light); }
+  .pill:has(input:focus-visible) { box-shadow: 0 0 0 3px rgba(169, 113, 63, .25); }
+
+  .meters { display: flex; flex-direction: column; gap: 12px; }
+  .meter { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 12px; }
+  .meter-label { font: 500 12px/1.2 var(--sans); color: var(--muted-dark); }
+  .meter-label em { display: block; font-style: normal; font-size: 10px; color: var(--sand-dark); margin-top: 3px; letter-spacing: .02em; }
+  .pips { display: flex; gap: 5px; }
+  .pip { position: relative; flex: 1; height: 22px; display: flex; align-items: center; cursor: pointer; }
+  .pip input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .pip span {
+    flex: 1;
+    height: 9px;
+    border-radius: 9px;
+    border: 1px solid var(--c);
+    background: transparent;
+    transition: background .12s ease, opacity .12s ease;
+  }
+  .pip:has(input:checked) span,
+  .pip:has(~ .pip input:checked) span { background: var(--c); }
+  .pips:hover .pip span { opacity: .55; }
+  .pips:hover .pip:hover span,
+  .pips:hover .pip:has(~ .pip:hover) span { background: var(--c); opacity: 1; }
+  .pip:has(input:focus-visible) span { box-shadow: 0 0 0 3px rgba(169, 113, 63, .25); }
+
+  .pairs input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    margin: 6px 0;
+    border-radius: 5px;
+    border: 1px solid var(--sand-dark);
+    background: linear-gradient(90deg,
+      var(--panel) 0%, var(--panel) 33%,
+      var(--pair-mid) 33%, var(--pair-mid) 66%,
+      var(--pair-light) 66%, var(--pair-light) 100%);
+    cursor: pointer;
+  }
+  .pairs input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--cream-light);
+    border: 2px solid var(--ink-mid);
+  }
+  .pairs input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--cream-light);
+    border: 2px solid var(--ink-mid);
+  }
+  .pairs input[type="range"]:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(169, 113, 63, .25); }
+  .scale {
+    display: flex;
+    justify-content: space-between;
+    font: 500 10px/1 var(--sans);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .iconpick summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border: 1px solid var(--sand-dark);
+    border-radius: 10px;
+    background: var(--cream-lighter);
+  }
+  .iconpick summary::-webkit-details-marker { display: none; }
+  .iconpick summary .label-sm { min-width: 40px; }
+  .preview { width: 30px; height: 30px; color: var(--c); }
+  .preview svg { width: 100%; height: 100%; fill: currentColor; }
+  .preview-name { flex: 1; font: 400 14px/1 var(--sans); color: var(--ink); }
+  .chev { color: var(--muted); transition: transform .2s ease; }
+  .iconpick[open] .chev { transform: rotate(180deg); }
+  .icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+    gap: 6px;
+    margin-top: 10px;
+    padding: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--sand);
+    border-radius: 10px;
+    background: var(--cream-lighter);
+  }
+  .ico {
+    position: relative;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    color: var(--brown);
+    cursor: pointer;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .ico input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .ico .icon { width: 26px; height: 26px; }
+  .ico .icon svg { width: 100%; height: 100%; fill: currentColor; }
+  .ico-ring { width: 18px; height: 18px; border: 1.5px dashed currentColor; border-radius: 50%; }
+  .ico:hover { border-color: var(--sand-dark); }
+  .ico:has(input:checked) { border-color: var(--c); background: var(--cream-light); color: var(--c); }
+  .ico:has(input:focus-visible) { box-shadow: 0 0 0 3px rgba(169, 113, 63, .25); }
+
+  .ing-rows { display: flex; flex-direction: column; gap: 8px; }
+  .ing-row { display: grid; grid-template-columns: 1fr 110px 30px; gap: 8px; align-items: center; }
+  .ing-x {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--sand-dark);
+    font: 400 20px/1 var(--sans);
+    cursor: pointer;
+  }
+  .ing-x:hover { color: var(--brown); background: var(--cream-deep); }
+  .ing-add {
+    align-self: flex-start;
+    margin-top: 10px;
+    border: 1px dashed var(--sand-dark);
+    background: transparent;
+    color: var(--brown);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font: 500 12px/1 var(--sans);
+    cursor: pointer;
+  }
+  .ing-add:hover { border-color: var(--brown); }
+
+  .foot {
+    position: sticky;
+    bottom: 0;
+    margin: 8px -36px 0;
+    padding: 18px 36px 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: var(--cream-light);
+    border-top: 1px solid var(--sand);
+  }
+  .hint { margin: 0; font: 400 12px/1.5 var(--sans); color: var(--muted-light); }
+  .hint code { font-size: 11px; color: var(--brown); }
+  .save {
+    flex: none;
+    border: 1px solid var(--c);
+    background: var(--c);
+    color: var(--cream-light);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font: 600 12px/1 var(--sans);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: filter .15s ease, transform .15s ease;
+  }
+  .save:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .save:focus-visible { outline: 2px dashed var(--accent); outline-offset: 3px; }
+
+  @media (max-width: 720px) {
+    .form { padding: 20px 20px 0; }
+    .row { grid-template-columns: 1fr; }
+    .meter { grid-template-columns: 90px 1fr; }
+    .foot { margin: 8px -20px 0; padding: 14px 20px 20px; flex-direction: column; align-items: stretch; }
+  }
+</style>

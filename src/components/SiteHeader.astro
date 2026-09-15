@@ -1,0 +1,150 @@
+---
+import { CATEGORIES, ALL_COLOR } from '../config/categories';
+import { SITE } from '../config/site';
+import BoxLogo from './BoxLogo.astro';
+import Icon from './Icon.astro';
+import RecipeComposer from './RecipeComposer.astro';
+
+interface Props {
+  tags: string[];
+}
+const { tags } = Astro.props;
+const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ...CATEGORIES];
+---
+<header class="hdr">
+  <div class="brand">
+    <BoxLogo />
+    <div class="titles">
+      <h1>{SITE.title}</h1>
+      <p>{SITE.tagline}</p>
+    </div>
+  </div>
+
+  <div class="rule"></div>
+
+  <div class="cats" role="group" aria-label="Filter by category">
+    <span class="cats-label">Category</span>
+    {filters.map((c) => (
+      <button
+        type="button"
+        class:list={['cat', { on: c.key === 'all' }]}
+        style={`--c:${c.color}`}
+        data-cat={c.key}
+        aria-pressed={c.key === 'all' ? 'true' : 'false'}
+      >
+        <Icon name={c.icon} size={20} class="cat-icon" />
+        {c.label}
+      </button>
+    ))}
+  </div>
+
+  <div class="search-row">
+    <label class="search">
+      <svg class="search-icon" viewBox="0 0 20 20" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8.5" cy="8.5" r="5.5" />
+        <path d="M12.8 12.8 17.5 17.5" />
+      </svg>
+      <input type="search" data-search placeholder={SITE.searchPlaceholder} autocomplete="off" aria-label="Search recipes" />
+    </label>
+    <div class="tag-chips" role="group" aria-label="Filter by tag">
+      {tags.map((t) => (
+        <button type="button" class="tag" data-tag={t} aria-pressed="false">#{t}</button>
+      ))}
+    </div>
+  </div>
+</header>
+
+<RecipeComposer />
+
+<style>
+  .hdr {
+    max-width: 980px;
+    margin: 0 auto 40px;
+    background: var(--cream);
+    border: 1px solid var(--brown);
+    border-radius: 14px;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+  }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .titles { display: flex; flex-direction: column; gap: 4px; }
+  .titles h1 {
+    margin: 0;
+    font: italic 400 46px/1.08 var(--display);
+    color: var(--ink);
+    letter-spacing: 0;
+  }
+  .titles p { margin: 0; font: 400 15px/1.5 var(--sans); color: var(--brown); }
+  .rule { height: 1px; background: var(--sand); margin: 6px 0 2px; }
+
+  .cats { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .cats-label {
+    font: 600 11px/1 var(--sans);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    margin-right: 4px;
+  }
+  .cat {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font: 600 12px/1 var(--sans);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--c);
+    color: var(--c);
+    background: transparent;
+  }
+  .cat:hover { filter: brightness(1.08); }
+  .cat.on { color: var(--cream-light); background: var(--c); }
+  .cat :global(.cat-icon) { flex: none; color: currentColor; }
+
+  .search-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--sand-dark);
+    background: var(--cream-lighter);
+    border-radius: 10px;
+    padding: 9px 12px;
+    min-width: 260px;
+    flex: 1 1 260px;
+    max-width: 380px;
+  }
+  .search-icon { flex: none; color: var(--accent); }
+  .search:focus-within { border-color: var(--accent); }
+  .search:focus-within .search-icon { color: var(--brown); }
+  .search input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: 400 14px/1 var(--sans);
+    color: var(--ink);
+    width: 100%;
+  }
+  .tag-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tag {
+    cursor: pointer;
+    font: 500 12px/1 var(--sans);
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--sand);
+    background: var(--cream-lighter);
+    color: var(--brown);
+  }
+  .tag:hover { border-color: var(--brown); }
+  .tag.on { border-color: var(--ink-mid); background: var(--ink-mid); color: var(--cream-light); }
+
+  @media (max-width: 720px) {
+    .hdr { padding: 24px 20px; }
+    .titles h1 { font-size: 32px; }
+  }
+</style>

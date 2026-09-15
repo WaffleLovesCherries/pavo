@@ -1,0 +1,130 @@
+---
+---
+<button type="button" class="logo" data-box-logo aria-label="Open the recipe box" aria-expanded="false">
+  <svg
+    viewBox="0 0 50 50"
+    width="48"
+    height="48"
+    aria-hidden="true"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <defs>
+      <clipPath id="box-mouth">
+        <rect x="-40" y="-80" width="140" height="106" />
+        <rect x="43" y="-80" width="120" height="180" />
+      </clipPath>
+    </defs>
+
+    <g class="body">
+      <path d="M9 26h32M9 26v20a2 2 0 0 0 2 2h28a2 2 0 0 0 2-2V26M9 37h32M14 31.5h6M30 42.5h6M22.5 26v4.5a1.5 1.5 0 0 0 1.5 1.5h2a1.5 1.5 0 0 0 1.5-1.5V26" />
+    </g>
+
+    <g clip-path="url(#box-mouth)">
+      <g class="paper" data-paper>
+        <path class="sheet" d="M18 12h10l4 4v16H18z" />
+        <path d="M28 12v4h4M21 21h8M21 25h8M21 29h5" />
+      </g>
+    </g>
+
+    <g class="lid">
+      <path d="M8 18h34a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zM12 22h6M32 22h6" />
+    </g>
+  </svg>
+</button>
+
+<script>
+  type State = 'closed' | 'open' | 'sent';
+
+  const LABELS: Record<State, string> = {
+    closed: 'Open the recipe box',
+    open: 'Take the sheet out and write a new recipe',
+    sent: 'Put the sheet back and close the recipe box',
+  };
+
+  const logo = document.querySelector<HTMLButtonElement>('[data-box-logo]');
+  if (logo) {
+    let state: State = 'closed';
+
+    const render = () => {
+      logo.classList.toggle('is-open', state !== 'closed');
+      logo.classList.toggle('is-sent', state === 'sent');
+      logo.setAttribute('aria-label', LABELS[state]);
+      logo.setAttribute('aria-expanded', String(state === 'sent'));
+    };
+
+    logo.addEventListener('click', (e) => {
+      if (state === 'sent') {
+        document.dispatchEvent(new CustomEvent('recipe-composer:close'));
+        return;
+      }
+      if (state === 'closed') {
+        state = 'open';
+      } else {
+        const onPaper = (e.target as Element).closest('[data-paper]') !== null;
+        state = onPaper || e.detail === 0 ? 'sent' : 'closed';
+      }
+      render();
+      if (state === 'sent') document.dispatchEvent(new CustomEvent('recipe-composer:open'));
+    });
+
+    document.addEventListener('recipe-composer:closed', () => {
+      state = 'closed';
+      render();
+    });
+  }
+</script>
+
+<style>
+  .logo {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--brown);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    transition: color .2s ease;
+  }
+  .logo:hover { color: var(--accent); }
+  .logo:focus-visible { outline: 2px dashed var(--accent); outline-offset: 4px; }
+  .logo svg { overflow: visible; display: block; }
+
+  .lid {
+    transform-box: view-box;
+    transform-origin: 6px 26px;
+    transition: transform .5s cubic-bezier(.34, 1.4, .64, 1) .3s;
+  }
+  .logo:not(.is-open):hover .lid { transform: rotate(-7deg); transition-delay: 0s; }
+  .logo.is-open .lid { transform: rotate(-80deg); transition-delay: 0s; }
+
+  .paper {
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: translateY(18px) rotate(-4deg);
+    opacity: 1;
+    transition: transform .45s cubic-bezier(.2, .8, .2, 1), opacity .3s ease .1s;
+  }
+  .paper .sheet { fill: var(--cream); }
+  .logo.is-open .paper { transform: translateY(-3px) rotate(-4deg); transition-delay: .2s; }
+  .logo.is-open:not(.is-sent):hover .paper { transform: translateY(-6px) rotate(-2deg); transition-delay: 0s; }
+  .logo.is-open:not(.is-sent) [data-paper] { cursor: pointer; }
+  .logo.is-sent .paper {
+    transform: translate(46px, -30px) rotate(28deg);
+    opacity: 0;
+    transition: transform .5s cubic-bezier(.4, 0, .8, .4), opacity .35s ease .15s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lid, .paper, .logo { transition-duration: .01s; transition-delay: 0s; }
+  }
+</style>

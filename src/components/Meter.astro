@@ -1,0 +1,35 @@
+---
+interface Props {
+  label: string;
+  value: number;
+  color: string;
+  labelWidth?: number;
+}
+const { label, value, color, labelWidth = 78 } = Astro.props;
+const pips = [1, 2, 3, 4, 5];
+---
+<div class="meter" style={`--c:${color};--lw:${labelWidth}px`}>
+  <span class="meter-label">{label}</span>
+  <div class="pips" role="img" aria-label={`${label}: ${value} of 5`}>
+    {pips.map((i) => <span class:list={['pip', { on: i <= value }]} />)}
+  </div>
+</div>
+
+<style>
+  .meter {
+    display: grid;
+    grid-template-columns: var(--lw) 1fr;
+    align-items: center;
+    gap: 10px;
+  }
+  .meter-label { font: 500 12px/1 var(--sans); color: var(--muted-dark); }
+  .pips { display: flex; gap: 4px; }
+  .pip {
+    flex: 1;
+    height: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--c);
+    background: transparent;
+  }
+  .pip.on { background: var(--c); }
+</style>

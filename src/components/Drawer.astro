@@ -1,0 +1,123 @@
+---
+import type { PaperStyle } from '../lib/paper';
+
+interface Props {
+  name: string;
+  eyebrow?: string;
+  title?: string;
+  width?: string;
+  paper?: PaperStyle;
+  closeLabel?: string;
+}
+const { name, eyebrow = '', title = '', width = '560px', paper = 'clean', closeLabel = 'Close' } = Astro.props;
+const titleId = `drawer-${name}-title`;
+---
+<div class="drawer" data-drawer={name} hidden>
+  <div class="scrim" data-drawer-close></div>
+
+  <aside
+    class:list={['sheet', `paper--${paper}`]}
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby={titleId}
+    data-drawer-sheet
+    style={`--w:${width}`}
+  >
+    <div class="face paper-face">
+      <header class="head">
+        <div class="head-text">
+          <span class="eyebrow" data-drawer-eyebrow>{eyebrow}</span>
+          <h2 id={titleId} data-drawer-title>{title}</h2>
+        </div>
+        <button type="button" class="x" data-drawer-close aria-label={closeLabel}>
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M4 4l12 12M16 4L4 16" />
+          </svg>
+        </button>
+      </header>
+      <div class="body" data-drawer-body>
+        <slot />
+      </div>
+    </div>
+  </aside>
+</div>
+
+<style>
+  .drawer { position: fixed; inset: 0; z-index: 50; }
+  .drawer[hidden] { display: none; }
+
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(28, 17, 11, .6);
+    opacity: 0;
+    transition: opacity .45s ease;
+  }
+  .drawer.is-open .scrim { opacity: 1; }
+
+  .sheet {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(var(--w), 100%);
+    filter: drop-shadow(-18px 0 40px rgba(0, 0, 0, .5));
+    transform: translateX(104%);
+    transition: transform .55s cubic-bezier(.2, .8, .2, 1);
+    outline: 0;
+  }
+  .drawer.is-open .sheet { transform: translateX(0); transition-delay: .15s; }
+
+  .face {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+  }
+
+  .head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: calc(34px + var(--paper-top, 0px)) 36px 20px calc(36px + var(--paper-left, 0px));
+    border-bottom: 1px dashed var(--sand-dark);
+  }
+  .head-text { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .head h2 {
+    margin: 0;
+    font: italic 400 34px/1.05 var(--display);
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .x {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--sand-dark);
+    border-radius: 50%;
+    background: var(--cream-lighter);
+    color: var(--brown);
+    cursor: pointer;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .x:hover { border-color: var(--brown); color: var(--ink); }
+  .x:focus-visible { outline: 2px dashed var(--accent); outline-offset: 3px; }
+
+  .body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (max-width: 720px) {
+    .head { padding: calc(24px + var(--paper-top, 0px)) 20px 16px calc(20px + var(--paper-left, 0px)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sheet, .scrim { transition-duration: .01s; transition-delay: 0s; }
+  }
+</style>

@@ -1,0 +1,165 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import { getCategory } from '../config/categories';
+import Icon from './Icon.astro';
+import Meter from './Meter.astro';
+import PairsBar from './PairsBar.astro';
+import TagChip from './TagChip.astro';
+
+interface Props {
+  recipe: CollectionEntry<'recipes'>;
+  showTitle?: boolean;
+}
+const { recipe, showTitle = true } = Astro.props;
+const d = recipe.data;
+const cat = getCategory(d.category);
+const { Content } = await render(recipe);
+const eyebrow = d.kind ? `${cat.label} · ${d.kind}` : cat.label;
+---
+<div class="recipe" style={`--c:${cat.color}`}>
+  {showTitle && (
+    <div class="title-row">
+      <Icon name={d.icon ?? cat.icon} size={72} class="title-icon" />
+      <div class="titles">
+        <span class="eyebrow">{eyebrow}</span>
+        <h1>{d.name}</h1>
+      </div>
+    </div>
+  )}
+
+  <div class="cols">
+    <div class="main">
+      {d.ingredients.length > 0 && (
+        <section>
+          <h2 class="eyebrow">Ingredients</h2>
+          <ul class="ingredients">
+            {d.ingredients.map(([name, amount]) => (
+              <li><span>{name}</span><span class="amount">{amount}</span></li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section>
+        <h2 class="eyebrow">Method</h2>
+        <div class="method">
+          <Content />
+        </div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <div class="stat">
+        <span class="label-sm">Prep time</span>
+        <span class="stat-v">{d.prep}</span>
+      </div>
+      <div class="meters">
+        <Meter label="Effort" value={d.effort} color={cat.color} labelWidth={74} />
+        <Meter label="Sweetness" value={d.sweetness} color={cat.color} labelWidth={74} />
+        <Meter label="Bitterness" value={d.bitterness} color={cat.color} labelWidth={74} />
+        {d.intensity !== undefined && (
+          <Meter label="Intensity" value={d.intensity} color={cat.color} labelWidth={74} />
+        )}
+      </div>
+      <PairsBar value={d.pairs} />
+      {d.tags.length > 0 && (
+        <div class="tags-block">
+          <span class="label-sm">Tags</span>
+          <div class="tags">{d.tags.map((t) => <TagChip tag={t} />)}</div>
+        </div>
+      )}
+    </aside>
+  </div>
+</div>
+
+<style>
+  .recipe {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .title-row { display: flex; gap: 18px; align-items: flex-start; }
+  .title-row :global(.title-icon) { flex: none; color: var(--c); }
+  .titles { display: flex; flex-direction: column; gap: 6px; }
+  .titles h1 { margin: 0; font: 400 38px/1.05 var(--serif); color: var(--ink); }
+
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 36px;
+    align-items: start;
+  }
+  .main { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
+  section h2 { margin: 0 0 12px; }
+
+  .ingredients {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font: 400 15px/1.5 var(--sans);
+    color: var(--ink-soft);
+  }
+  .ingredients li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px dotted var(--dot);
+    padding-bottom: 6px;
+  }
+  .amount { color: var(--muted-dark); white-space: nowrap; }
+
+  .method { font: 400 15px/1.65 var(--sans); color: var(--ink-soft); }
+  .method :global(ol),
+  .method :global(ul) {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .method :global(p) { margin: 0 0 12px; }
+  .method :global(h3) {
+    margin: 18px 0 8px;
+    font: 600 11px/1 var(--sans);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 20px;
+    border: 1px dashed var(--sand-dark);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, .28);
+  }
+  .side > * + * { border-top: 1px solid var(--sand-line); padding-top: 16px; }
+  .stat { display: flex; flex-direction: column; gap: 3px; }
+  .stat-v { font: 600 17px/1 var(--sans); color: var(--ink-mid); }
+  .meters { display: flex; flex-direction: column; gap: 11px; }
+  .tags-block { display: flex; flex-direction: column; gap: 8px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  @container (max-width: 700px) {
+    .cols { grid-template-columns: 1fr; gap: 26px; }
+    .side {
+      order: -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 24px;
+    }
+    .side > * + * { border-top: 0; padding-top: 0; }
+    .titles h1 { font-size: 30px; }
+  }
+  @container (max-width: 420px) {
+    .side { grid-template-columns: 1fr; }
+  }
+</style>
