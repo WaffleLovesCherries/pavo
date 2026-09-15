@@ -60,10 +60,12 @@ const searchText = [d.name, ...d.tags, d.profile].join(' ').toLowerCase();
     color: inherit;
     transition: transform .22s cubic-bezier(.2, .8, .2, 1), filter .22s ease;
   }
-  .card:hover {
-    color: inherit;
-    transform: rotate(0deg) translateY(-5px);
-    filter: drop-shadow(0 22px 30px rgba(0, 0, 0, .5));
+  @media (hover: hover) {
+    .card:hover {
+      color: inherit;
+      transform: rotate(0deg) translateY(-5px);
+      filter: drop-shadow(0 22px 30px rgba(0, 0, 0, .5));
+    }
   }
   .card:focus-visible { outline: 2px dashed var(--accent); outline-offset: 6px; }
   .card[hidden] { display: none; }
@@ -106,4 +108,9 @@ const searchText = [d.name, ...d.tags, d.profile].join(' ').toLowerCase();
   .meters { display: flex; flex-direction: column; gap: 9px; }
   .pairs-wrap { margin-top: auto; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  @media (max-width: 720px) {
+    .face { padding: calc(18px + var(--paper-top, 0px)) 18px 18px calc(18px + var(--paper-left, 0px)); gap: 12px; }
+    .name { font-size: 22px; }
+  }
 </style>

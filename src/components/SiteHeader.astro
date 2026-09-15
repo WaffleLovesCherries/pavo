@@ -24,6 +24,7 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
 
   <div class="cats" role="group" aria-label="Filter by category">
     <span class="cats-label">Category</span>
+    <div class="cat-list">
     {filters.map((c) => (
       <button
         type="button"
@@ -36,6 +37,7 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
         {c.label}
       </button>
     ))}
+    </div>
   </div>
 
   <div class="search-row">
@@ -81,6 +83,7 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
   .rule { height: 1px; background: var(--sand); margin: 6px 0 2px; }
 
   .cats { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .cat-list { display: contents; }
   .cats-label {
     font: 600 11px/1 var(--sans);
     letter-spacing: .14em;
@@ -102,7 +105,7 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
     color: var(--c);
     background: transparent;
   }
-  .cat:hover { filter: brightness(1.08); }
+  @media (hover: hover) { .cat:hover { filter: brightness(1.08); } }
   .cat.on { color: var(--cream-light); background: var(--c); }
   .cat :global(.cat-icon) { flex: none; color: currentColor; }
 
@@ -140,11 +143,45 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
     background: var(--cream-lighter);
     color: var(--brown);
   }
-  .tag:hover { border-color: var(--brown); }
+  @media (hover: hover) { .tag:hover { border-color: var(--brown); } }
   .tag.on { border-color: var(--ink-mid); background: var(--ink-mid); color: var(--cream-light); }
 
+  /* Bigger touch targets on phones and tablets. */
+  @media (pointer: coarse) {
+    .cat { padding: 11px 14px; }
+    .tag { padding: 10px 12px; }
+  }
+
   @media (max-width: 720px) {
-    .hdr { padding: 24px 20px; }
-    .titles h1 { font-size: 32px; }
+    .hdr { padding: 20px 16px 16px; gap: 12px; border-radius: 12px; margin-bottom: 24px; }
+    .brand { gap: 12px; }
+    .titles h1 { font-size: 28px; }
+    .titles p { font-size: 13px; line-height: 1.4; }
+    .rule { margin: 2px 0 0; }
+
+    /* Category buttons and tag chips become single rows that scroll sideways,
+       bleeding to the header's edges with a fade hinting there is more. */
+    .cats, .search-row { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; }
+    .cats-label { margin: 0; }
+    .cat-list, .tag-chips {
+      display: flex;
+      min-width: 0;
+      flex-wrap: nowrap;
+      gap: 8px;
+      margin: 0 -16px;
+      padding: 2px 16px;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 28px), transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 28px), transparent);
+    }
+    .cat-list::-webkit-scrollbar, .tag-chips::-webkit-scrollbar { display: none; }
+    .cat, .tag { flex: none; scroll-snap-align: start; white-space: nowrap; }
+
+    .search { flex: none; min-width: 0; max-width: none; width: 100%; }
+    /* 16px keeps iOS from zooming into the field on focus. */
+    .search input { font-size: 16px; }
   }
 </style>

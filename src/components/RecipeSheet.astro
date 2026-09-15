@@ -160,6 +160,10 @@ const eyebrow = d.kind ? `${cat.label} · ${d.kind}` : cat.label;
     .titles h1 { font-size: 30px; }
   }
   @container (max-width: 420px) {
-    .side { grid-template-columns: 1fr; }
+    .side { grid-template-columns: 1fr; padding: 16px; }
+    .title-row { gap: 12px; }
+    .title-row :global(.title-icon) { --icon-size: 44px; }
+    .titles h1 { font-size: 26px; }
+    .cols { gap: 22px; }
   }
 </style>

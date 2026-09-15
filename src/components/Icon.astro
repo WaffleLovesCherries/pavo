@@ -10,4 +10,4 @@ const icons = import.meta.glob<string>('../icons/*.svg', { query: '?raw', import
 const svg = icons[`../icons/${name}.svg`];
 if (!svg) throw new Error(`Icon "${name}" not found in src/icons`);
 ---
-<span class:list={['icon', className]} style={`width:${size}px;height:${size}px`} set:html={svg} aria-hidden="true" />
+<span class:list={['icon', className]} style={`width:var(--icon-size,${size}px);height:var(--icon-size,${size}px)`} set:html={svg} aria-hidden="true" />
