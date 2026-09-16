@@ -1,0 +1,159 @@
+---
+/**
+ * The tempering guide as the contents of a drawer: six wrappers, an index card with
+ * the title, a ruled note with the method, a card with the test and a printed ticket
+ * of every number, lying on the wood. Shown on /templado/ and cloned into the viewer
+ * drawer, always inside a `paper--cabinet` sheet.
+ */
+import { CHOCOLATES } from '../config/tempering';
+import { formatRange } from '../lib/tempering';
+import Note from './Note.astro';
+import Wrapper from './Wrapper.astro';
+
+interface Props {
+  showTitle?: boolean;
+}
+const { showTitle = true } = Astro.props;
+const TILTS = [-1.3, 0.9, -0.6, 1.1, -1, 0.7];
+---
+<div class="tray">
+<div class="drawer">
+  <Note tilt={-0.5} class="card intro">
+    {showTitle && (
+      <>
+        <span class="kicker">Guía de técnica</span>
+        <h1>Templado de chocolate</h1>
+      </>
+    )}
+    <p class="lede">
+      Fundir del todo, enfriar removiendo hasta que espese, y volver a subir justo al punto de trabajo.
+      Cada chocolate tiene sus tres temperaturas; el envase del fabricante manda si dice otra cosa.
+    </p>
+  </Note>
+
+  <Note tilt={1.2} class="ticket">
+    <table>
+      <caption>Todas las cifras, en °C</caption>
+      <thead>
+        <tr><th scope="col">Chocolate</th><th scope="col">Fundir</th><th scope="col">Enfriar</th><th scope="col">Trabajar</th></tr>
+      </thead>
+      <tbody>
+        {CHOCOLATES.map((c) => (
+          <tr>
+            <th scope="row">{c.name}</th>
+            <td>{formatRange(c.melt)}</td>
+            <td>{formatRange(c.cool)}</td>
+            <td>{formatRange(c.work)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </Note>
+
+  {CHOCOLATES.map((c, i) => (
+    <Note tilt={TILTS[i % TILTS.length]!}>
+      <Wrapper chocolate={c} />
+    </Note>
+  ))}
+
+  <Note tilt={0.4} class="card method">
+    <h2>Por siembra</h2>
+    <ol>
+      <li>Funde dos tercios del chocolate al baño maría, o en el microondas a golpes cortos, removiendo, hasta la temperatura de fundido.</li>
+      <li>Fuera del calor, añade el tercio restante picado y remueve sin parar: el chocolate frío siembra cristales estables mientras baja.</li>
+      <li>Al llegar a la temperatura de enfriado espesa un poco. Caliéntalo apenas, unos segundos, hasta el punto de trabajo.</li>
+      <li>Mantenlo ahí mientras trabajas. Si baja, otro golpe corto de calor; si se pasa del fundido, vuelve a empezar.</li>
+    </ol>
+  </Note>
+
+  <Note tilt={-0.9} class="card test">
+    <h2>La prueba</h2>
+    <p>
+      Unta la punta de un cuchillo o un trozo de papel de horno y déjalo a temperatura ambiente.
+      Bien templado, endurece en tres a cinco minutos, brillante, sin vetas y con chasquido al romperlo.
+    </p>
+    <p>
+      Mate, blando o con manchas grises: los cristales no eran los buenos. Se funde otra vez y se repite; el chocolate no se estropea por ello.
+    </p>
+  </Note>
+</div>
+</div>
+
+<style>
+  /* The container queries below measure this wrapper: a container cannot query itself. */
+  .tray { container-type: inline-size; }
+  .drawer {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 30px 28px;
+    padding: 10px 6px 8px;
+  }
+  .drawer :global(.intro) { grid-column: span 2; }
+  .drawer :global(.method) { grid-column: span 2; }
+  /* Cards and the ticket are as tall as their text; wrappers stretch so each row of bags lines up. */
+  .drawer :global(.card), .drawer :global(.ticket) { align-self: start; }
+
+  /* Index cards: plain cream stock with a printed rule under the heading. */
+  .drawer :global(.card) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 22px 22px 20px;
+    background-color: var(--cream-lighter);
+    background-image: linear-gradient(180deg, rgba(0, 0, 0, .03), transparent 12px);
+    border-radius: 2px;
+    color: var(--ink);
+  }
+  .kicker { font: italic 400 16px/1 var(--serif); color: var(--muted); }
+  .drawer :global(.intro) h1 { margin: 0; font: italic 400 40px/1.05 var(--display); color: var(--ink); }
+  .lede { margin: 0; max-width: 60ch; font: 400 18px/1.45 var(--serif); color: var(--ink-soft); }
+
+  .drawer :global(.card) h2 {
+    margin: 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--sand-line);
+    font: italic 400 24px/1.1 var(--display);
+    color: var(--ink);
+  }
+  /* The method is written on ruled stock. */
+  .drawer :global(.method) {
+    background-image:
+      repeating-linear-gradient(180deg, transparent 0 25px, rgba(120, 80, 50, .14) 25px 26px),
+      linear-gradient(180deg, rgba(0, 0, 0, .03), transparent 12px);
+    background-position: 0 14px, 0 0;
+  }
+  .drawer :global(.method) ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+  .drawer :global(.method) li::marker { color: var(--muted); font-weight: 600; }
+  .drawer :global(.card) li, .drawer :global(.card) p { font: 400 15px/1.55 var(--sans); color: var(--ink-soft); }
+  .drawer :global(.card) p { margin: 0; }
+  .drawer :global(.card) p + p { margin-top: 8px; }
+
+  /* The ticket: a narrow printed slip. */
+  .drawer :global(.ticket) {
+    padding: 16px 16px 14px;
+    background: #FBF7EE;
+    border-radius: 1px;
+    color: var(--ink);
+  }
+  .drawer :global(.ticket) table { border-collapse: collapse; width: 100%; font: 400 13px/1.3 var(--sans); }
+  .drawer :global(.ticket) caption { text-align: left; padding-bottom: 8px; font: italic 400 16px/1.1 var(--display); }
+  .drawer :global(.ticket) th, .drawer :global(.ticket) td { text-align: left; padding: 4px 6px 4px 0; border-bottom: 1px dotted var(--dot); }
+  .drawer :global(.ticket) thead th { font: 600 10px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .drawer :global(.ticket) tbody th { font-weight: 500; }
+  .drawer :global(.ticket) td { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  @container (max-width: 760px) {
+    .drawer { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 22px; }
+    .drawer :global(.intro), .drawer :global(.method) { grid-column: span 2; }
+    .drawer :global(.ticket) { grid-column: span 2; max-width: 460px; }
+    .drawer :global(.intro) h1 { font-size: 34px; }
+  }
+  @container (max-width: 460px) {
+    .drawer { grid-template-columns: 1fr; gap: 24px; padding: 8px 2px 6px; }
+    .drawer :global(.intro), .drawer :global(.method), .drawer :global(.ticket) { grid-column: auto; }
+    .drawer :global(.ticket) { order: 10; }
+    .drawer :global(.card) { padding: 18px 16px 16px; }
+    .drawer :global(.intro) h1 { font-size: 30px; }
+    .lede { font-size: 17px; }
+  }
+</style>

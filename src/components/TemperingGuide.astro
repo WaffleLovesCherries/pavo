@@ -1,0 +1,150 @@
+---
+/**
+ * The body of the tempering guide: six chalk charts, the seeding method and the
+ * test, and every number again as a table. Shown on /templado/ and cloned into the
+ * viewer drawer from the index, always inside a `paper--board` sheet.
+ */
+import { CHOCOLATES } from '../config/tempering';
+import { formatRange } from '../lib/tempering';
+import TemperingChart from './TemperingChart.astro';
+
+interface Props {
+  showTitle?: boolean;
+}
+const { showTitle = true } = Astro.props;
+---
+<div class="guide">
+  {showTitle && (
+    <header class="head">
+      <p class="kicker">Guía de técnica</p>
+      <h1>Templado de chocolate</h1>
+    </header>
+  )}
+  <p class="lede">
+    Fundir del todo, enfriar removiendo hasta que espese, y volver a subir justo al punto de trabajo.
+    Cada chocolate tiene sus tres temperaturas; el envase del fabricante manda si dice otra cosa.
+  </p>
+
+  <div class="figs">
+    {CHOCOLATES.map((c) => (
+      <figure class="fig">
+        <figcaption>
+          <span class="swatch" style={`--series:${c.chalk}`} />
+          <h2>{c.name}</h2>
+        </figcaption>
+        <TemperingChart chocolate={c} series={c.chalk} rough />
+        {c.note && <p class="note">{c.note}</p>}
+      </figure>
+    ))}
+  </div>
+
+  <div class="how">
+    <section>
+      <h2>Por siembra</h2>
+      <ol>
+        <li>Funde dos tercios del chocolate al baño maría, o en el microondas a golpes cortos, removiendo, hasta la temperatura de fundido.</li>
+        <li>Fuera del calor, añade el tercio restante picado y remueve sin parar: el chocolate frío siembra cristales estables mientras baja.</li>
+        <li>Al llegar a la temperatura de enfriado espesa un poco. Caliéntalo apenas, unos segundos, hasta el punto de trabajo.</li>
+        <li>Mantenlo ahí mientras trabajas. Si baja, otro golpe corto de calor; si se pasa del fundido, vuelve a empezar.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>La prueba</h2>
+      <p>
+        Unta la punta de un cuchillo o un trozo de papel de horno y déjalo a temperatura ambiente.
+        Bien templado, endurece en tres a cinco minutos, brillante, sin vetas y con chasquido al romperlo.
+      </p>
+      <p>
+        Mate, blando o con manchas grises: los cristales no eran los buenos. Se funde otra vez y se repite; el chocolate no se estropea por ello.
+      </p>
+    </section>
+  </div>
+
+  <table class="figures">
+    <caption>Todas las cifras, en °C</caption>
+    <thead>
+      <tr><th scope="col">Chocolate</th><th scope="col">Fundir</th><th scope="col">Enfriar</th><th scope="col">Trabajar</th></tr>
+    </thead>
+    <tbody>
+      {CHOCOLATES.map((c) => (
+        <tr>
+          <th scope="row">{c.name}</th>
+          <td>{formatRange(c.melt)}</td>
+          <td>{formatRange(c.cool)}</td>
+          <td>{formatRange(c.work)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .guide {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    color: var(--chalk);
+  }
+  .head { display: flex; flex-direction: column; gap: 4px; }
+  .kicker { margin: 0; font: 500 18px/1 var(--chalk-font); color: var(--chalk-dim); }
+  .head h1 { margin: 0; font: 600 46px/1.05 var(--chalk-font); color: var(--chalk); }
+  .lede {
+    margin: 0;
+    max-width: 62ch;
+    font: 400 20px/1.35 var(--chalk-font);
+    color: var(--chalk);
+  }
+
+  .figs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 26px 28px;
+  }
+  .fig { margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  figcaption { display: flex; align-items: center; gap: 8px; }
+  .swatch { width: 18px; height: 5px; border-radius: 3px; background: var(--series); }
+  .fig h2 { margin: 0; font: 600 22px/1.1 var(--chalk-font); color: var(--chalk); }
+  .note { margin: 0; font: 400 14px/1.4 var(--sans); color: var(--chalk-dim); }
+
+  .how {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 28px 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--chalk-faint);
+  }
+  .how h2 { margin: 0 0 10px; font: 600 24px/1.1 var(--chalk-font); }
+  .how ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 9px; }
+  .how li::marker { font: 600 16px var(--chalk-font); color: var(--chalk-dim); }
+  .how li, .how p { font: 400 15px/1.55 var(--sans); color: var(--chalk); }
+  .how p { margin: 0 0 10px; }
+
+  .figures {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 520px;
+    font: 400 15px/1.4 var(--sans);
+    color: var(--chalk);
+  }
+  .figures caption {
+    text-align: left;
+    padding-bottom: 8px;
+    font: 600 20px/1.1 var(--chalk-font);
+  }
+  .figures th, .figures td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--chalk-faint); }
+  .figures thead th { font: 500 15px/1 var(--chalk-font); color: var(--chalk-dim); }
+  .figures tbody th { font-weight: 500; }
+  .figures td { font-variant-numeric: tabular-nums; }
+
+  @container (max-width: 760px) {
+    .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .how { grid-template-columns: 1fr; }
+    .head h1 { font-size: 38px; }
+  }
+  @container (max-width: 460px) {
+    .figs { grid-template-columns: 1fr; gap: 22px; }
+    .lede { font-size: 18px; }
+    .head h1 { font-size: 34px; }
+  }
+</style>

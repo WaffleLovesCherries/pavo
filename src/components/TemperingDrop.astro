@@ -1,0 +1,156 @@
+---
+/**
+ * A brass bail handle screwed into the underside of the site header, with no label:
+ * an easter egg. Pulling it slides the tempering drawer (the slot) out from behind the
+ * header; pulling again slides it back in. Closed by default and kept out of the tab
+ * order while closed. `label` is only for assistive tech.
+ */
+interface Props {
+  label?: string;
+}
+const { label = 'Guía de templado' } = Astro.props;
+---
+<div class="drop" data-tempering-drop>
+  <div class="window" id="tempering-drop" data-drop-body>
+    <div class="pad" data-drop-drawer>
+      <slot />
+    </div>
+  </div>
+  <button type="button" class="pull" data-drop-toggle aria-expanded="false" aria-controls="tempering-drop" aria-label={label}>
+    <span class="plate" aria-hidden="true">
+      <span class="screw" />
+      <span class="screw" />
+    </span>
+    <svg class="bail" viewBox="0 0 72 24" width="72" height="24" aria-hidden="true">
+      <defs>
+        <linearGradient id="brass-bail" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#F1D99F" />
+          <stop offset=".45" stop-color="#C79A45" />
+          <stop offset=".62" stop-color="#9C7430" />
+          <stop offset="1" stop-color="#E4C47C" />
+        </linearGradient>
+      </defs>
+      <path class="bail-shadow" d="M10 0v8q0 10 10 10h32q10 0 10-10V0" />
+      <path class="bail-bar" d="M10 0v8q0 10 10 10h32q10 0 10-10V0" />
+      <circle class="post" cx="10" cy="3" r="4.5" />
+      <circle class="post" cx="62" cy="3" r="4.5" />
+    </svg>
+  </button>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-tempering-drop]');
+  const toggle = root?.querySelector<HTMLButtonElement>('[data-drop-toggle]');
+  const win = root?.querySelector<HTMLElement>('[data-drop-body]');
+  const drawer = root?.querySelector<HTMLElement>('[data-drop-drawer]');
+  if (root && toggle && win && drawer) {
+    const isOpen = () => root.classList.contains('is-open');
+    // The window's open height is the drawer's own height, measured so it can be animated in pixels.
+    const fit = () => win.style.setProperty('--h', `${drawer.offsetHeight}px`);
+    const set = (open: boolean) => {
+      if (open) fit();
+      root.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      win.inert = !open;
+    };
+    set(false);
+    toggle.addEventListener('click', () => set(!isOpen()));
+    new ResizeObserver(() => { if (isOpen()) fit(); }).observe(drawer);
+  }
+</script>
+
+<style>
+  .drop {
+    --brass-light: #F1D99F;
+    --brass: #C79A45;
+    --brass-dark: #7A5A22;
+    --slide: .7s cubic-bezier(.2, .8, .2, 1);
+    max-width: 980px;
+    /* Tucks up against the header's bottom edge (its margin is 40px / 24px on phones). */
+    margin: -40px auto 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /*
+   * Drawer and handle move as one piece. The drawer is pinned to the bottom of a clipped
+   * window and the handle hangs right under that window, so wherever the window's bottom
+   * edge is, the drawer's front and the handle are there together. Opening is only the
+   * window growing from 0 to the drawer's height, in pixels, so nothing can drift.
+   */
+  .window {
+    position: relative;
+    width: calc(100% + 48px);
+    height: 0;
+    overflow: hidden;
+    transition: height var(--slide);
+  }
+  .is-open .window { height: var(--h, 0px); }
+  .pad {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 14px 24px 0;
+  }
+
+  .pull {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .45));
+    transition: transform .15s ease;
+  }
+  .pull:active { transform: translateY(1px); }
+  .pull:focus-visible { outline: 2px dashed var(--accent-light); outline-offset: 6px; border-radius: 6px; }
+  @media (hover: hover) {
+    .pull:hover .plate, .pull:hover .bail { filter: brightness(1.08); }
+  }
+
+  /* The backplate: a small brass strip screwed on at both ends. */
+  .plate {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 72px;
+    padding: 4px 6px 5px;
+    border-radius: 0 0 5px 5px;
+    border: 1px solid var(--brass-dark);
+    border-top: 0;
+    background: linear-gradient(180deg, var(--brass-light), var(--brass) 45%, #A87C32 62%, #E0BE74);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -1px 0 rgba(0, 0, 0, .2);
+  }
+  .screw {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background:
+      linear-gradient(35deg, transparent 44%, rgba(60, 40, 10, .7) 44% 56%, transparent 56%),
+      radial-gradient(circle at 35% 30%, var(--brass-light), var(--brass) 55%, var(--brass-dark));
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .25), 0 1px 1px rgba(255, 255, 255, .4);
+  }
+  .screw + .screw { transform: rotate(50deg); }
+
+  /* The bail: a curved brass bar hanging from two posts under the plate. */
+  .bail { display: block; margin-top: -1px; overflow: visible; }
+  .bail-shadow { fill: none; stroke: var(--brass-dark); stroke-width: 8; stroke-linecap: round; }
+  .bail-bar { fill: none; stroke: url(#brass-bail); stroke-width: 5.5; stroke-linecap: round; }
+  .post { fill: var(--brass); stroke: var(--brass-dark); stroke-width: 1; }
+
+  @media (pointer: coarse) {
+    .pull { padding: 0 10px 6px; }
+  }
+  @media (max-width: 720px) {
+    .drop { margin: -24px auto 24px; }
+    .window { width: calc(100% + 32px); }
+    .pad { padding: 10px 16px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .window, .pull { transition: none; }
+  }
+</style>

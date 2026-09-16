@@ -1,6 +1,6 @@
 ---
 ---
-<button type="button" class="logo" data-box-logo aria-label="Open the recipe box" aria-expanded="false">
+<button type="button" class="logo" data-box-logo aria-label="Abrir el recetario" aria-expanded="false">
   <svg
     viewBox="0 0 50 50"
     width="48"
@@ -40,9 +40,9 @@
   type State = 'closed' | 'open' | 'sent';
 
   const LABELS: Record<State, string> = {
-    closed: 'Open the recipe box',
-    open: 'Take the sheet out and write a new recipe',
-    sent: 'Put the sheet back and close the recipe box',
+    closed: 'Abrir el recetario',
+    open: 'Sacar la hoja y escribir una receta nueva',
+    sent: 'Guardar la hoja y cerrar el recetario',
   };
 
   const logo = document.querySelector<HTMLButtonElement>('[data-box-logo]');

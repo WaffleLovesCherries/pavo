@@ -3,9 +3,14 @@ import { glob } from 'astro/loaders';
 import { CATEGORY_KEYS } from './config/categories';
 
 const level = z.number().int().min(0).max(5);
+const amount = z.union([z.string(), z.number()]).transform(String);
+/** [name, amount] or [name, amount, icon]; zod 3 tuples cannot have optional items, hence the union. */
+const ingredient = z.union([z.tuple([z.string(), amount]), z.tuple([z.string(), amount, z.string()])]);
 
 const recipes = defineCollection({
-  loader: glob({ pattern: ['**/*.md', '!**/_*.md'], base: './src/content/recipes' }),
+  // The template lives one folder up (src/content/recipe-template.md) so it never becomes a recipe:
+  // the dev watcher ignores negated patterns, so an underscore-prefixed file in here would still be loaded on save.
+  loader: glob({ pattern: '**/*.md', base: './src/content/recipes' }),
   schema: z.object({
     name: z.string(),
     category: z.enum(CATEGORY_KEYS),
@@ -20,7 +25,7 @@ const recipes = defineCollection({
     pairs: z.number().min(0).max(100),
     tags: z.array(z.string()).default([]),
     lastMade: z.coerce.date().optional(),
-    ingredients: z.array(z.tuple([z.string(), z.union([z.string(), z.number()]).transform(String)])).default([]),
+    ingredients: z.array(ingredient).default([]),
   }),
 });
 

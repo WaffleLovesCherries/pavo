@@ -1,0 +1,25 @@
+---
+/**
+ * Something lying in the cabinet drawer: a wrapper, an index card, a ticket.
+ * A slight `tilt` in degrees and a tight shadow, as if dropped on the wood.
+ */
+interface Props {
+  tilt?: number;
+  class?: string;
+}
+const { tilt = 0, class: className = '' } = Astro.props;
+---
+<div class:list={['lying', className]} style={`--tilt:${tilt}deg`}>
+  <slot />
+</div>
+
+<style>
+  .lying {
+    position: relative;
+    transform: rotate(var(--tilt));
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3)) drop-shadow(0 5px 8px rgba(0, 0, 0, .28));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lying { transform: none; }
+  }
+</style>

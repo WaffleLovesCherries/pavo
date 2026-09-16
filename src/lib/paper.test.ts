@@ -2,21 +2,33 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PAPER_STYLES, paperFor, titleHash } from './paper.ts';
 
-test('the hash is deterministic and lands in 0-3', () => {
+test('there are eight paper styles', () => {
+  assert.equal(PAPER_STYLES.length, 8);
+  assert.deepEqual([...PAPER_STYLES], ['clean', 'ruled', 'torn', 'taped', 'grid', 'pinned', 'stained', 'kraft']);
+});
+
+test('the hash is deterministic and lands in 0-7', () => {
   for (const t of ['Hazelnut praline ganache', 'Cocoa brioche', '', 'ñ']) {
     const a = paperFor(t);
     assert.equal(a.style, paperFor(t).style);
     assert.ok(PAPER_STYLES.includes(a.style));
-    assert.ok(titleHash(t) >= 0 && titleHash(t) < 4);
+    assert.ok(titleHash(t) >= 0 && titleHash(t) < 8);
   }
 });
 
-test('different titles spread across the four styles', () => {
+test('the style is the hash index into the style list', () => {
+  for (const t of ['Lemon curd', 'Yuzu ganache', 'Passion fruit jelly', 'Vanilla ganache']) {
+    assert.equal(paperFor(t).style, PAPER_STYLES[titleHash(t)]);
+  }
+});
+
+test('different titles spread across the eight styles', () => {
   const titles = ['70% dark shell ganache', 'Cacao nib tuile', 'Cocoa brioche', 'Hazelnut praline ganache',
     'Passion fruit jelly', 'Pistachio marzipan centre', 'Raspberry pâte de fruit', 'Salted caramel filling',
-    'Lemon curd', 'Coffee ganache', 'Orange jelly', 'Brown butter shortbread'];
+    'Lemon curd', 'Coffee ganache', 'Orange jelly', 'Brown butter shortbread',
+    'Yuzu ganache', 'Milk chocolate bar', 'Vanilla ganache', 'Pecan praline'];
   const seen = new Set(titles.map((t) => paperFor(t).style));
-  assert.equal(seen.size, 4);
+  assert.equal(seen.size, 8);
 });
 
 test('the tilt is a small angle in degrees', () => {

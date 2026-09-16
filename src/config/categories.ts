@@ -10,15 +10,15 @@ export interface Category {
 }
 
 export const CATEGORIES: Category[] = [
-  { key: 'ganache', label: 'Ganaches',        color: '#7A3E22', icon: 'chocolate' },
-  { key: 'jam',     label: 'Jams',            color: '#8C2F2F', icon: 'jam' },
-  { key: 'cream',   label: 'Creams',          color: '#9A7420', icon: 'cream' },
-  { key: 'filling', label: 'Bonbon fillings', color: '#A9713F', icon: 'pastry-bag' },
-  { key: 'sauce',   label: 'Sauces',          color: '#B0522E', icon: 'sauce' },
-  { key: 'bread',   label: 'Bread',           color: '#8A6647', icon: 'bread' },
-  { key: 'pastry',  label: 'Pastries',        color: '#6F5B3A', icon: 'pastry' },
-  { key: 'dessert', label: 'Desserts',        color: '#7B4E5B', icon: 'dessert' },
-  { key: 'main',    label: 'Main dishes',     color: '#5B6A3E', icon: 'pot' },
+  { key: 'ganache', label: 'Ganache',         color: '#7A3E22', icon: 'chocolate'  },
+  { key: 'jam',     label: 'Mermelada',       color: '#8C2F2F', icon: 'jam'        },
+  { key: 'cream',   label: 'Crema',           color: '#9A7420', icon: 'cream'      },
+  { key: 'filling', label: 'Relleno',         color: '#A9713F', icon: 'pastry-bag' },
+  { key: 'sauce',   label: 'Salsa',           color: '#B0522E', icon: 'sauce'      },
+  { key: 'bread',   label: 'Pan',             color: '#8A6647', icon: 'bread'      },
+  { key: 'pastry',  label: 'Pastelería',      color: '#6F5B3A', icon: 'pastry'     },
+  { key: 'dessert', label: 'Postre',          color: '#7B4E5B', icon: 'dessert'    },
+  { key: 'main',    label: 'Plato principal', color: '#5B6A3E', icon: 'pot'        },
 ];
 
 export const ALL_COLOR = '#6F4428';

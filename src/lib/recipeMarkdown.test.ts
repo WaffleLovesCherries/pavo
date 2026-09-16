@@ -117,3 +117,18 @@ test('blank ingredient rows are skipped and whitespace is trimmed', () => {
   });
   assert.match(md, /^ingredients:\n  - \[Cream, 100 g\]\n---$/m);
 });
+
+test('an ingredient icon is written as a third item, only when set', () => {
+  const md = buildRecipeMarkdown({
+    ...full,
+    ingredients: [
+      ['Dark couverture 64%', '180 g', 'chocolate'],
+      ['Heavy cream', '120 g'],
+      ['Eggs', '2', ''],
+    ],
+  });
+  assert.match(
+    md,
+    /^ingredients:\n  - \[Dark couverture 64%, 180 g, chocolate\]\n  - \[Heavy cream, 120 g\]\n  - \[Eggs, 2\]\n---$/m,
+  );
+});

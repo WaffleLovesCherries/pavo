@@ -1,0 +1,95 @@
+---
+/**
+ * A chocolate's couverture wrapper with its tempering curve printed on it, the way
+ * the real bags carry the numbers. Paper, ink and foil come from `wrap` in
+ * src/config/tempering.ts; the chart is printed in the same ink as the label.
+ */
+import type { Chocolate } from '../config/tempering';
+import { formatRange } from '../lib/tempering';
+import TemperingChart from './TemperingChart.astro';
+
+interface Props {
+  chocolate: Chocolate;
+  compact?: boolean;
+}
+const { chocolate: c, compact = false } = Astro.props;
+const { paper, ink, foil = false, kind = 'cobertura' } = c.wrap;
+---
+<div class:list={['wrap', { foil, compact }]} style={`--paper:${paper};--ink:${ink}`}>
+  <span class="crimp top" aria-hidden="true" />
+  <div class="label">
+    <span class="name">{c.name}</span>
+    {!compact && <span class="kind">{kind}</span>}
+  </div>
+  <TemperingChart chocolate={c} compact={compact} />
+  {!compact && (
+    <p class="print">
+      {formatRange(c.melt)} · {formatRange(c.cool)} · {formatRange(c.work)} °C
+    </p>
+  )}
+  {!compact && c.note && <p class="note">{c.note}</p>}
+  <span class="crimp bottom" aria-hidden="true" />
+</div>
+
+<style>
+  .wrap {
+    --plot-ink: var(--ink);
+    --plot-ink-dim: color-mix(in srgb, var(--ink) 68%, transparent);
+    --plot-grid: color-mix(in srgb, var(--ink) 16%, transparent);
+    --plot-surface: var(--paper);
+    --plot-font: var(--sans);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 16px 16px;
+    color: var(--ink);
+    background-color: var(--paper);
+    /* A faint printed pattern so the paper is not a flat colour, and a highlight down one side. */
+    background-image:
+      linear-gradient(100deg, rgba(255, 255, 255, .14), transparent 35%, rgba(0, 0, 0, .06)),
+      repeating-linear-gradient(-45deg, rgba(255, 255, 255, .05) 0 1px, transparent 1px 7px);
+    border-radius: 2px;
+  }
+  .foil {
+    background-image:
+      linear-gradient(115deg, #A8822F 0%, #E9CF86 18%, #C9A24A 34%, #F6E7B4 50%, #C99C42 66%, #EED597 84%, #B08A35 100%);
+    background-color: transparent;
+  }
+
+  .crimp {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 7px;
+    background: repeating-linear-gradient(90deg, rgba(0, 0, 0, .16) 0 2px, rgba(255, 255, 255, .18) 2px 4px);
+  }
+  .crimp.top { top: 0; border-radius: 2px 2px 0 0; }
+  .crimp.bottom { bottom: 0; border-radius: 0 0 2px 2px; }
+
+  .label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid var(--ink);
+  }
+  .name {
+    font: 700 17px/1 var(--sans);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  .kind { font: italic 400 15px/1 var(--serif); opacity: .8; }
+  .print {
+    margin: 0;
+    font: 600 13px/1.2 var(--sans);
+    letter-spacing: .06em;
+    font-variant-numeric: tabular-nums;
+  }
+  .note { margin: 0; font: 400 13.5px/1.4 var(--sans); opacity: .82; }
+
+  .compact { padding: 12px 10px 12px; gap: 4px; }
+  .compact .label { padding-bottom: 5px; border-width: 1px; }
+  .compact .name { font-size: 11px; letter-spacing: .1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>

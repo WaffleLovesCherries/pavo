@@ -1,0 +1,79 @@
+---
+/**
+ * The tempering guide's place on the index: the drawer that slides out from under the
+ * header, with a title card and the six wrappers in miniature lying in it. Opens in the
+ * viewer like a recipe card and links to /templado/.
+ */
+import { CHOCOLATES } from '../config/tempering';
+import Note from './Note.astro';
+import Wrapper from './Wrapper.astro';
+
+const href = `${import.meta.env.BASE_URL}templado/`;
+const TILTS = [-1.6, 1.2, -0.8, 1.4, -1.1, 0.9];
+---
+<a class="drawer paper paper--cabinet" href={href} data-recipe="templado">
+  <div class="face paper-face">
+    <Note tilt={-1} class="title">
+      <span class="kicker">Guía de técnica</span>
+      <h2>Templado de chocolate</h2>
+      <p>Las curvas de cada chocolate, de fundir a trabajar.</p>
+    </Note>
+    <ul class="minis">
+      {CHOCOLATES.map((c, i) => (
+        <li>
+          <Note tilt={TILTS[i % TILTS.length]!}>
+            <Wrapper chocolate={c} compact />
+          </Note>
+        </li>
+      ))}
+    </ul>
+  </div>
+</a>
+
+<style>
+  /* Unlike a recipe card, the drawer stays put on hover: it is furniture, not a sheet to lift. */
+  .drawer { display: block; color: var(--ink); }
+  .drawer:hover { color: var(--ink); }
+  .drawer:focus-visible { outline: 2px dashed var(--accent-light); outline-offset: 6px; }
+
+  .face {
+    display: grid;
+    grid-template-columns: minmax(210px, 1fr) minmax(0, 3.2fr);
+    gap: 18px 30px;
+    align-items: center;
+    padding: 28px 28px 26px;
+  }
+  .drawer :global(.title) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 20px 20px 18px;
+    background: var(--cream-lighter);
+    border-radius: 2px;
+  }
+  .kicker { font: italic 400 15px/1 var(--serif); color: var(--muted); }
+  .drawer :global(.title) h2 { margin: 0; font: italic 400 30px/1.05 var(--display); color: var(--ink); }
+  .drawer :global(.title) p { margin: 4px 0 0; font: 400 15px/1.4 var(--serif); color: var(--ink-soft); }
+
+  .minis {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px 16px;
+  }
+  .minis li { min-width: 0; }
+
+  @media (max-width: 1000px) {
+    .face { grid-template-columns: 1fr; gap: 22px; }
+    .minis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 720px) {
+    .face { padding: 22px 20px 20px; }
+    .minis { gap: 14px 12px; }
+  }
+  @media (max-width: 420px) {
+    .minis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>

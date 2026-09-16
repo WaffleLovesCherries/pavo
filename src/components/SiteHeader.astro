@@ -9,7 +9,7 @@ interface Props {
   tags: string[];
 }
 const { tags } = Astro.props;
-const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ...CATEGORIES];
+const filters = [{ key: 'all', label: 'Todas', color: ALL_COLOR, icon: 'box' }, ...CATEGORIES];
 ---
 <header class="hdr">
   <div class="brand">
@@ -22,8 +22,8 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
 
   <div class="rule"></div>
 
-  <div class="cats" role="group" aria-label="Filter by category">
-    <span class="cats-label">Category</span>
+  <div class="cats" role="group" aria-label="Filtrar por categoría">
+    <span class="cats-label">Categoría</span>
     <div class="cat-list">
     {filters.map((c) => (
       <button
@@ -46,9 +46,9 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
         <circle cx="8.5" cy="8.5" r="5.5" />
         <path d="M12.8 12.8 17.5 17.5" />
       </svg>
-      <input type="search" data-search placeholder={SITE.searchPlaceholder} autocomplete="off" aria-label="Search recipes" />
+      <input type="search" data-search placeholder={SITE.searchPlaceholder} autocomplete="off" aria-label="Buscar recetas" />
     </label>
-    <div class="tag-chips" role="group" aria-label="Filter by tag">
+    <div class="tag-chips" role="group" aria-label="Filtrar por etiqueta">
       {tags.map((t) => (
         <button type="button" class="tag" data-tag={t} aria-pressed="false">#{t}</button>
       ))}
@@ -59,17 +59,26 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
 <RecipeComposer />
 
 <style>
+  /* The front of the cabinet drawer the recipes live in: an oak frame with a recessed cream panel.
+     The frame is a transparent border painted by the border-box layers; the panel is the padding-box one. */
   .hdr {
     max-width: 980px;
     margin: 0 auto 40px;
-    background: var(--cream);
-    border: 1px solid var(--brown);
+    border: 14px solid transparent;
     border-radius: 14px;
-    padding: 40px 44px;
+    padding: 28px 30px;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+    background-image:
+      linear-gradient(var(--cream), var(--cream)),
+      var(--oak-grain),
+      linear-gradient(180deg, var(--oak-light), var(--oak) 40%, var(--oak-dark));
+    background-origin: border-box;
+    background-clip: padding-box, border-box, border-box, border-box;
+    outline: 1px solid rgba(0, 0, 0, .35);
+    outline-offset: -1px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, .3), 0 18px 40px rgba(0, 0, 0, .45);
   }
   .brand { display: flex; align-items: center; gap: 18px; }
   .titles { display: flex; flex-direction: column; gap: 4px; }
@@ -153,7 +162,7 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
   }
 
   @media (max-width: 720px) {
-    .hdr { padding: 20px 16px 16px; gap: 12px; border-radius: 12px; margin-bottom: 24px; }
+    .hdr { border-width: 10px; padding: 12px 8px 8px; gap: 12px; border-radius: 12px; margin-bottom: 24px; }
     .brand { gap: 12px; }
     .titles h1 { font-size: 28px; }
     .titles p { font-size: 13px; line-height: 1.4; }
@@ -168,14 +177,14 @@ const filters = [{ key: 'all', label: 'All', color: ALL_COLOR, icon: 'box' }, ..
       min-width: 0;
       flex-wrap: nowrap;
       gap: 8px;
-      margin: 0 -16px;
-      padding: 2px 16px;
+      margin: 0 -8px;
+      padding: 2px 8px;
       overflow-x: auto;
       scroll-snap-type: x proximity;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
-      -webkit-mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 28px), transparent);
-      mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 28px), transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 10px, #000 calc(100% - 22px), transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 10px, #000 calc(100% - 22px), transparent);
     }
     .cat-list::-webkit-scrollbar, .tag-chips::-webkit-scrollbar { display: none; }
     .cat, .tag { flex: none; scroll-snap-align: start; white-space: nowrap; }

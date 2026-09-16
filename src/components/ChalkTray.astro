@@ -1,0 +1,34 @@
+---
+/** The ledge under a chalkboard, with a few sticks of chalk in the colours used on it. */
+interface Props {
+  colors: string[];
+}
+const { colors } = Astro.props;
+---
+<div class="tray" aria-hidden="true">
+  {colors.map((c, i) => <span class="stick" style={`--stick:${c};--i:${i}`} />)}
+</div>
+
+<style>
+  .tray {
+    position: relative;
+    height: 12px;
+    margin: 0 -12px -12px;
+    padding: 0 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-radius: 0 0 6px 6px;
+    background: linear-gradient(180deg, var(--wood-dark), var(--wood) 40%, var(--wood-dark));
+    box-shadow: 0 3px 4px rgba(0, 0, 0, .35);
+  }
+  .stick {
+    width: 30px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--stick);
+    transform: translateY(-2px) rotate(calc(var(--i) * 3deg - 4deg));
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .35);
+    opacity: .9;
+  }
+</style>

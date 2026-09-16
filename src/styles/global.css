@@ -25,6 +25,14 @@
   --pair-mid: #8C5A33;
   --pair-light: #EBD7B4;
 
+  /* Oak, for the cabinet the recipes live in: the header front and the tempering drawer. */
+  --oak-light: #C08A52;
+  --oak: #9C6B3C;
+  --oak-dark: #6B4424;
+  --oak-grain:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .07) 0 2px, transparent 2px 9px, rgba(255, 255, 255, .05) 9px 10px, transparent 10px 23px),
+    repeating-linear-gradient(90deg, transparent 0 57px, rgba(0, 0, 0, .06) 57px 71px, transparent 71px 138px, rgba(255, 255, 255, .04) 138px 160px);
+
   --serif: 'Newsreader', Georgia, serif;
   --display: 'Playfair Display', 'Newsreader', Georgia, serif;
   --sans: 'Karla', system-ui, sans-serif;

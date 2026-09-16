@@ -10,7 +10,7 @@ const pips = [1, 2, 3, 4, 5];
 ---
 <div class="meter" style={`--c:${color};--lw:${labelWidth}px`}>
   <span class="meter-label">{label}</span>
-  <div class="pips" role="img" aria-label={`${label}: ${value} of 5`}>
+  <div class="pips" role="img" aria-label={`${label}: ${value} de 5`}>
     {pips.map((i) => <span class:list={['pip', { on: i <= value }]} />)}
   </div>
 </div>

@@ -9,7 +9,7 @@ interface Props {
   paper?: PaperStyle;
   closeLabel?: string;
 }
-const { name, eyebrow = '', title = '', width = '560px', paper = 'clean', closeLabel = 'Close' } = Astro.props;
+const { name, eyebrow = '', title = '', width = '560px', paper = 'clean', closeLabel = 'Cerrar' } = Astro.props;
 const titleId = `drawer-${name}-title`;
 ---
 <div class="drawer" data-drawer={name} hidden>
@@ -107,6 +107,14 @@ const titleId = `drawer-${name}-title`;
   .x:hover { border-color: var(--brown); color: var(--ink); }
   .x:focus-visible { outline: 2px dashed var(--accent); outline-offset: 3px; }
 
+  /* On the chalkboard (the tempering guide) the header is written in chalk like the rest of the board. */
+  :global(.paper--board) .head h2 { font: 600 38px/1.05 var(--chalk-font); }
+  :global(.paper--board) .head .eyebrow { font: 500 17px/1 var(--chalk-font); letter-spacing: 0; text-transform: none; }
+  /* In the cabinet drawer the header sits on bare wood, so it is written in cream. */
+  :global(.paper--cabinet) .head { border-color: rgba(255, 255, 255, .28); }
+  :global(.paper--cabinet) .head h2 { color: var(--cream-light); }
+  :global(.paper--cabinet) .head .eyebrow { color: rgba(247, 238, 223, .75); }
+
   .body {
     flex: 1;
     min-height: 0;
@@ -116,7 +124,6 @@ const titleId = `drawer-${name}-title`;
   }
 
   @media (max-width: 720px) {
-    /* On phones the sheet covers the whole screen; a sliver of page behind it is just noise. */
     .sheet { width: 100%; }
     .head {
       align-items: center;

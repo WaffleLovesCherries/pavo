@@ -1,21 +1,21 @@
 export const SITE = {
   title: 'Chocolates para Andrea',
-  tagline: 'Ganaches, jams, bonbon fillings, bread, pastries and everything in between.',
-  searchPlaceholder: 'Search tags: hazelnut, citrus, 70%…',
+  tagline: 'Delicias diseñadas con mi princesa en mente...',
+  searchPlaceholder: 'Busca por etiquetas...',
   headerTagCount: 9,
 };
 
-export const EFFORT_LABELS = ['', 'Easy', 'Easy', 'Medium', 'Hard', 'Project'] as const;
+export const EFFORT_LABELS = ['', 'Auto', 'Fácil', 'Medio', 'Difícil', 'Profesional'] as const;
 
 export const BACKGROUND = {
-  maxSpeed: 18,
+  maxSpeed: 128,
   deadZone: 0.08,
   tile: {
     square: 90,
-    squares: 8,
+    squares: 16,
     iconSize: 52,
     fill: 1,
-    seed: 7,
+    seed: 29,
     lightOpacity: 0.11,
     darkOpacity: 0.38,
     depth: 2,

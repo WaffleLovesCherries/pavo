@@ -16,7 +16,7 @@ const paper = paperFor(d.name);
 <Layout title={d.name} description={`${d.name}: ${d.profile}. ${d.prep}.`}>
   <article class:list={['sheet', 'paper', `paper--${paper.style}`]} style={`--tilt:${paper.tilt / 2}deg`}>
     <div class="face paper-face">
-      <a class="back" href={import.meta.env.BASE_URL}>&larr; Back to all recipes</a>
+      <a class="back" href={import.meta.env.BASE_URL}>&larr; Volver a todas las recetas</a>
       <div class="content">
         <RecipeSheet recipe={recipe} />
       </div>

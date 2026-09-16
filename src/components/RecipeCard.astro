@@ -34,14 +34,14 @@ const searchText = [d.name, ...d.tags, d.profile].join(' ').toLowerCase();
     </div>
     <h2 class="name">{d.name}</h2>
     <div class="facts">
-      <div class="fact"><span class="label-sm">Prep</span><span class="fact-v">{d.prep}</span></div>
-      <div class="fact"><span class="label-sm">Effort</span><span class="fact-v">{EFFORT_LABELS[d.effort]}</span></div>
-      <div class="fact"><span class="label-sm">Profile</span><span class="fact-v">{d.profile}</span></div>
+      <div class="fact"><span class="label-sm">Preparación</span><span class="fact-v">{d.prep}</span></div>
+      <div class="fact"><span class="label-sm">Esfuerzo</span><span class="fact-v">{EFFORT_LABELS[d.effort]}</span></div>
+      <div class="fact"><span class="label-sm">Perfil</span><span class="fact-v">{d.profile}</span></div>
     </div>
     <div class="meters">
-      <Meter label="Effort" value={d.effort} color={cat.color} />
-      <Meter label="Sweetness" value={d.sweetness} color={cat.color} />
-      <Meter label="Bitterness" value={d.bitterness} color={cat.color} />
+      <Meter label="Esfuerzo" value={d.effort} color={cat.color} />
+      <Meter label="Dulzor" value={d.sweetness} color={cat.color} />
+      <Meter label="Amargor" value={d.bitterness} color={cat.color} />
     </div>
     <div class="pairs-wrap">
       <PairsBar value={d.pairs} />

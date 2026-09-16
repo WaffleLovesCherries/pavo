@@ -10,23 +10,23 @@ const iconNames = Object.keys(import.meta.glob('../icons/*.svg'))
   .sort();
 const levels = [1, 2, 3, 4, 5];
 const meters = [
-  { key: 'effort', label: 'Effort', required: true, hint: EFFORT_LABELS.slice(1).join(' · ') },
-  { key: 'sweetness', label: 'Sweetness', required: true },
-  { key: 'bitterness', label: 'Bitterness', required: true },
-  { key: 'intensity', label: 'Intensity', required: false, hint: 'optional' },
+  { key: 'effort', label: 'Esfuerzo', required: true, hint: EFFORT_LABELS.slice(1).join(' · ') },
+  { key: 'sweetness', label: 'Dulzor', required: true },
+  { key: 'bitterness', label: 'Amargor', required: true },
+  { key: 'intensity', label: 'Intensidad', required: false, hint: 'opcional' },
 ];
 const first = CATEGORIES[0]!;
 ---
 <div data-composer data-sprite={`${base}icons.svg`}>
-<Drawer name="composer" eyebrow="New recipe" title="Write it down" width="min(720px, 88vw)" paper="clean" closeLabel="Close without saving">
+<Drawer name="composer" eyebrow="Receta nueva" title="Inspírate" width="min(720px, 88vw)" paper="clean" closeLabel="Cerrar sin guardar">
     <form class="form" data-composer-form style={`--c:${first.color}`}>
       <label class="field">
-        <span class="label-sm">Name</span>
-        <input name="name" type="text" required autocomplete="off" placeholder="Hazelnut praline ganache" data-first-field />
+        <span class="label-sm">Nombre</span>
+        <input name="name" type="text" required autocomplete="off" placeholder="Ganache de praliné de avellana" data-first-field />
       </label>
 
       <fieldset class="field cats">
-        <legend class="label-sm">Category</legend>
+        <legend class="label-sm">Categoría</legend>
         <div class="pills">
           {CATEGORIES.map((c, i) => (
             <label class="pill" style={`--pc:${c.color}`}>
@@ -40,22 +40,22 @@ const first = CATEGORIES[0]!;
 
       <div class="row">
         <label class="field">
-          <span class="label-sm">Prep</span>
-          <input name="prep" type="text" required autocomplete="off" placeholder="25 min + 12 h rest" />
+          <span class="label-sm">Preparación</span>
+          <input name="prep" type="text" required autocomplete="off" placeholder="25 min + 12 h de reposo" />
         </label>
         <label class="field">
-          <span class="label-sm">Kind <em>optional</em></span>
-          <input name="kind" type="text" autocomplete="off" placeholder="filling, shell, glaze…" />
+          <span class="label-sm">Tipo <em>opcional</em></span>
+          <input name="kind" type="text" autocomplete="off" placeholder="relleno, cobertura, glaseado…" />
         </label>
       </div>
 
       <div class="row">
         <label class="field">
-          <span class="label-sm">Profile</span>
-          <input name="profile" type="text" required autocomplete="off" placeholder="Nutty, tart red fruit…" />
+          <span class="label-sm">Perfil</span>
+          <input name="profile" type="text" required autocomplete="off" placeholder="Frutos secos, frutos rojos ácidos…" />
         </label>
         <label class="field">
-          <span class="label-sm">Last made</span>
+          <span class="label-sm">Última vez</span>
           <input name="lastMade" type="date" data-today />
         </label>
       </div>
@@ -66,7 +66,7 @@ const first = CATEGORIES[0]!;
             <span class="meter-label">{m.label}{m.hint && <em>{m.hint}</em>}</span>
             <div class="pips">
               {levels.map((i) => (
-                <label class="pip" title={`${i} of 5`}>
+                <label class="pip" title={`${i} de 5`}>
                   <input type="radio" name={m.key} value={i} required={m.required} />
                   <span></span>
                 </label>
@@ -77,20 +77,20 @@ const first = CATEGORIES[0]!;
       </div>
 
       <div class="field pairs">
-        <label class="label-sm" for="composer-pairs">Pairs with</label>
+        <label class="label-sm" for="composer-pairs">Combina con</label>
         <input id="composer-pairs" name="pairs" type="range" min="0" max="100" value="50" />
-        <div class="scale"><span>Dark</span><span>Milk</span><span>White</span></div>
+        <div class="scale"><span>Negro</span><span>Con leche</span><span>Blanco</span></div>
       </div>
 
       <details class="field iconpick" data-iconpick>
         <summary>
-          <span class="label-sm">Icon</span>
+          <span class="label-sm">Icono</span>
           <span class="icon preview" data-icon-preview><svg aria-hidden="true"></svg></span>
-          <span class="preview-name" data-icon-name>Category default</span>
+          <span class="preview-name" data-icon-name>Por defecto de la categoría</span>
           <svg class="chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5l3 3 3-3" /></svg>
         </summary>
         <div class="icons">
-          <label class="ico ico-default" title="Category default">
+          <label class="ico ico-default" title="Por defecto de la categoría">
             <input type="radio" name="icon" value="" checked />
             <span class="ico-ring"></span>
           </label>
@@ -104,32 +104,24 @@ const first = CATEGORIES[0]!;
       </details>
 
       <label class="field">
-        <span class="label-sm">Tags <em>comma separated</em></span>
-        <input name="tags" type="text" autocomplete="off" placeholder="hazelnut, praline, bonbon" />
+        <span class="label-sm">Etiquetas <em>separadas por comas</em></span>
+        <input name="tags" type="text" autocomplete="off" placeholder="avellana, praliné, bombón" />
       </label>
 
       <fieldset class="field ingredients" data-ingredients>
-        <legend class="label-sm">Ingredients</legend>
-        <div class="ing-rows" data-ingredient-rows>
-          {[0, 1, 2].map(() => (
-            <div class="ing-row">
-              <input name="ing-name" type="text" autocomplete="off" placeholder="Dark couverture 64%" aria-label="Ingredient" />
-              <input name="ing-amount" type="text" autocomplete="off" placeholder="180 g" aria-label="Amount" />
-              <button type="button" class="ing-x" data-ingredient-remove aria-label="Remove ingredient">×</button>
-            </div>
-          ))}
-        </div>
-        <button type="button" class="ing-add" data-ingredient-add>+ Add ingredient</button>
+        <legend class="label-sm">Ingredientes <em>los iconos se deducen del nombre; pasa el ratón por una fila o toca su icono para elegir</em></legend>
+        <div class="ing-rows" data-ingredient-rows></div>
+        <button type="button" class="ing-add" data-ingredient-add>+ Añadir ingrediente</button>
       </fieldset>
 
       <label class="field">
-        <span class="label-sm">Method <em>Markdown</em></span>
-        <textarea name="method" rows="8" placeholder={"1. Heat cream with invert sugar to 80°C.\n2. Pour over the couverture in thirds, emulsifying between each addition."}></textarea>
+        <span class="label-sm">Elaboración <em>Markdown</em></span>
+        <textarea name="method" rows="8" placeholder={"1. Calienta la nata con el azúcar invertido a 80 °C.\n2. Viértela sobre la cobertura en tres veces, emulsionando entre cada adición."}></textarea>
       </label>
 
       <footer class="foot">
-        <p class="hint">Downloads a <code>.md</code> file. Drop it in <code>src/content/recipes/</code> and push.</p>
-        <button type="submit" class="save">Save recipe</button>
+        <p class="hint">Descarga un archivo <code>.md</code>. Déjalo en <code>src/content/recipes/</code> y haz push.</p>
+        <button type="submit" class="save">Guardar receta</button>
       </footer>
     </form>
 </Drawer>
@@ -137,15 +129,30 @@ const first = CATEGORIES[0]!;
 
 <template data-ingredient-template>
   <div class="ing-row">
-    <input name="ing-name" type="text" autocomplete="off" placeholder="Ingredient" aria-label="Ingredient" />
-    <input name="ing-amount" type="text" autocomplete="off" placeholder="Amount" aria-label="Amount" />
-    <button type="button" class="ing-x" data-ingredient-remove aria-label="Remove ingredient">×</button>
+    <div class="ing-line">
+      <input name="ing-name" type="text" autocomplete="off" placeholder="Cobertura negra 64 %" aria-label="Ingrediente" />
+      <input name="ing-amount" type="text" autocomplete="off" placeholder="180 g" aria-label="Cantidad" />
+      <input type="hidden" name="ing-icon" value="" />
+      <button type="button" class="ing-ico" data-ingredient-icon aria-label="Elegir un icono" aria-expanded="false"><span class="ico-ring"></span><span class="icon"><svg aria-hidden="true"></svg></span></button>
+      <button type="button" class="ing-x" data-ingredient-remove aria-label="Quitar ingrediente">×</button>
+    </div>
+    <div class="ing-icons">
+      <div class="ing-strip" role="group" aria-label="Icono">
+        <button type="button" class="ico ico-default" title="Deducir del nombre" data-pick=""><span class="ico-ring"></span></button>
+        {iconNames.map((n) => (
+          <button type="button" class="ico" title={n} data-pick={n}>
+            <span class="icon"><svg data-icon={n} aria-hidden="true"></svg></span>
+          </button>
+        ))}
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
   import { setupDrawer } from '../lib/drawer';
   import { buildRecipeMarkdown, slugify, type RecipeDraft } from '../lib/recipeMarkdown';
+  import { guessIcon } from '../lib/iconMatch';
 
   const wrapEl = document.querySelector<HTMLElement>('[data-composer]');
   const rootEl = wrapEl?.querySelector<HTMLElement>('[data-drawer="composer"]');
@@ -167,7 +174,7 @@ const first = CATEGORIES[0]!;
       const chosen = form.querySelector<HTMLInputElement>('input[name="icon"]:checked')?.value ?? '';
       const name = chosen || checkedCategory()?.dataset.icon || '';
       if (preview) preview.innerHTML = name ? `<use href="${sprite}#i-${name}"></use>` : '';
-      if (previewName) previewName.textContent = chosen || 'Category default';
+      if (previewName) previewName.textContent = chosen || 'Por defecto de la categoría';
     }
 
     const drawer = setupDrawer(root, {
@@ -175,11 +182,16 @@ const first = CATEGORIES[0]!;
       onClose: () => document.dispatchEvent(new CustomEvent('recipe-composer:closed')),
     });
 
+    // The sprite is only referenced once the drawer opens, so the page does not fetch it for nothing.
+    function fillSprite(scope: ParentNode) {
+      for (const svg of scope.querySelectorAll<SVGElement>('svg[data-icon]')) {
+        svg.innerHTML = `<use href="${sprite}#i-${svg.dataset.icon}"></use>`;
+      }
+    }
+
     function open() {
       if (!spriteLoaded) {
-        for (const svg of root.querySelectorAll<SVGElement>('svg[data-icon]')) {
-          svg.innerHTML = `<use href="${sprite}#i-${svg.dataset.icon}"></use>`;
-        }
+        fillSprite(root);
         spriteLoaded = true;
       }
       const today = form.querySelector<HTMLInputElement>('[data-today]');
@@ -210,17 +222,89 @@ const first = CATEGORIES[0]!;
       }
     });
 
+    // Ingredient rows. Each row owns its icon strip, collapsed until the row is hovered or its icon clicked.
+    const iconInput = (row: Element) => row.querySelector<HTMLInputElement>('input[name="ing-icon"]');
+
+    function refreshRow(row: Element) {
+      const chosen = iconInput(row)?.value ?? '';
+      const name = row.querySelector<HTMLInputElement>('input[name="ing-name"]')?.value ?? '';
+      const shown = chosen || guessIcon(name) || '';
+      const svg = row.querySelector<SVGElement>('[data-ingredient-icon] svg');
+      if (svg) svg.innerHTML = shown ? `<use href="${sprite}#i-${shown}"></use>` : '';
+      row.classList.toggle('has-icon', Boolean(shown));
+      row.classList.toggle('auto', !chosen && Boolean(shown));
+      for (const b of row.querySelectorAll<HTMLElement>('[data-pick]')) {
+        b.classList.toggle('picked', b.dataset.pick === chosen);
+      }
+    }
+
+    function setRowIcon(row: Element, name: string) {
+      const input = iconInput(row);
+      if (input) input.value = name;
+      refreshRow(row);
+    }
+
+    function setOpen(row: Element, open: boolean) {
+      row.classList.toggle('open', open);
+      row.querySelector('[data-ingredient-icon]')?.setAttribute('aria-expanded', String(open));
+      if (open) row.querySelector('.picked')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    }
+
+    function addRow(): HTMLElement | null {
+      if (!rows || !rowTemplate) return null;
+      const frag = rowTemplate.content.cloneNode(true) as DocumentFragment;
+      const row = frag.querySelector<HTMLElement>('.ing-row');
+      if (spriteLoaded) fillSprite(frag);
+      rows.append(frag);
+      return row;
+    }
+
+    function clearRows() {
+      if (!rows) return;
+      for (const row of rows.querySelectorAll('.ing-row')) {
+        setRowIcon(row, '');
+        setOpen(row, false);
+      }
+    }
+
+    for (let i = 0; i < 3; i++) addRow();
+
     root.querySelector('[data-ingredient-add]')?.addEventListener('click', () => {
-      if (!rows || !rowTemplate) return;
-      rows.append(rowTemplate.content.cloneNode(true));
-      rows.querySelector<HTMLInputElement>('.ing-row:last-child input')?.focus();
+      addRow()?.querySelector('input')?.focus();
     });
     rows?.addEventListener('click', (e) => {
-      const btn = (e.target as Element).closest('[data-ingredient-remove]');
-      const row = btn?.closest('.ing-row');
-      if (!btn || !row) return;
-      if (rows.children.length > 1) row.remove();
-      else for (const i of row.querySelectorAll('input')) i.value = '';
+      const target = e.target as Element;
+      const row = target.closest<HTMLElement>('.ing-row');
+      if (!row) return;
+      const pick = target.closest<HTMLElement>('[data-pick]');
+      if (pick) {
+        setRowIcon(row, pick.dataset.pick ?? '');
+        setOpen(row, false);
+        row.querySelector<HTMLElement>('[data-ingredient-icon]')?.focus();
+        return;
+      }
+      if (target.closest('[data-ingredient-icon]')) {
+        setOpen(row, !row.classList.contains('open'));
+        return;
+      }
+      if (!target.closest('[data-ingredient-remove]')) return;
+      if (rows.querySelectorAll('.ing-row').length > 1) row.remove();
+      else {
+        for (const i of row.querySelectorAll('input')) i.value = '';
+        setRowIcon(row, '');
+      }
+    });
+    rows?.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      const row = t.closest('.ing-row');
+      if (t.name === 'ing-name' && row) refreshRow(row);
+    });
+    rows?.addEventListener('keydown', (e) => {
+      const row = (e.target as Element).closest<HTMLElement>('.ing-row.open');
+      if (e.key !== 'Escape' || !row) return;
+      e.stopPropagation();
+      setOpen(row, false);
+      row.querySelector<HTMLElement>('[data-ingredient-icon]')?.focus();
     });
 
     function download(fileName: string, text: string) {
@@ -239,6 +323,7 @@ const first = CATEGORIES[0]!;
       const num = (k: string) => Number(fd.get(k) ?? 0);
       const names = fd.getAll('ing-name').map(String);
       const amounts = fd.getAll('ing-amount').map(String);
+      const icons = fd.getAll('ing-icon').map(String);
 
       const draft: RecipeDraft = {
         name: str('name'),
@@ -254,12 +339,13 @@ const first = CATEGORIES[0]!;
         pairs: num('pairs'),
         tags: str('tags').split(',').map((t) => t.trim()).filter(Boolean),
         lastMade: str('lastMade') || undefined,
-        ingredients: names.map((n, i) => [n, amounts[i] ?? ''] as [string, string]),
+        ingredients: names.map((n, i) => [n, amounts[i] ?? '', icons[i] || undefined] as [string, string, string?]),
         method: str('method'),
       };
 
       download(`${slugify(draft.name)}.md`, buildRecipeMarkdown(draft));
       form.reset();
+      clearRows();
       for (const r of form.querySelectorAll<HTMLInputElement>('[data-optional] input')) r.dataset.was = '';
       form.style.setProperty('--c', checkedCategory()?.dataset.color ?? '');
       drawer.close();
@@ -445,7 +531,68 @@ const first = CATEGORIES[0]!;
   .ico:has(input:focus-visible) { box-shadow: 0 0 0 3px rgba(169, 113, 63, .25); }
 
   .ing-rows { display: flex; flex-direction: column; gap: 8px; }
-  .ing-row { display: grid; grid-template-columns: 1fr 110px 30px; gap: 8px; align-items: center; }
+  .ing-row { display: flex; flex-direction: column; }
+  .ing-line { display: grid; grid-template-columns: 1fr 110px 30px 30px; gap: 8px; align-items: center; }
+  .ing-ico {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sand-dark);
+    cursor: pointer;
+    transition: border-color .12s ease, color .12s ease;
+  }
+  .ing-ico .ico-ring { width: 14px; height: 14px; border: 1.5px dashed currentColor; border-radius: 50%; }
+  .ing-ico .icon { display: none; width: 22px; height: 22px; }
+  .ing-ico .icon svg { width: 100%; height: 100%; fill: currentColor; }
+  .ing-row.has-icon .ing-ico .ico-ring { display: none; }
+  .ing-row.has-icon .ing-ico .icon { display: block; }
+  .ing-row.has-icon .ing-ico { color: var(--c); }
+  /* A guessed icon is drawn faintly, a chosen one in the category colour. */
+  .ing-row.auto .ing-ico { color: var(--c); opacity: .45; }
+  .ing-ico:hover, .ing-row.open .ing-ico { border-color: var(--sand-dark); opacity: 1; }
+  .ing-ico:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(169, 113, 63, .25); }
+
+  .ing-icons {
+    max-height: 0;
+    margin-top: 0;
+    overflow: hidden;
+    transition: max-height .18s ease, margin-top .18s ease;
+  }
+  .ing-row.open .ing-icons,
+  .ing-icons:has(:focus-visible) { max-height: 110px; margin-top: 6px; }
+  @media (hover: hover) {
+    .ing-row:hover .ing-icons { max-height: 110px; margin-top: 6px; }
+  }
+  /* Two rows of icons that scroll sideways, with a slim scrollbar in the strip's own colours
+     instead of the page-wide dark one from global.css. */
+  .ing-strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, 34px);
+    gap: 4px;
+    padding: 5px 5px 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sand-dark) transparent;
+    border: 1px solid var(--sand);
+    border-radius: 10px;
+    background: var(--cream-lighter);
+  }
+  .ing-strip::-webkit-scrollbar { height: 6px; width: 6px; }
+  .ing-strip::-webkit-scrollbar-track { background: transparent; }
+  .ing-strip::-webkit-scrollbar-thumb { background: var(--sand-dark); border-radius: 3px; }
+  .ing-strip::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  .ing-strip .ico { width: 34px; height: 34px; padding: 0; background: transparent; font: inherit; }
+  .ing-strip .ico .icon { width: 22px; height: 22px; }
+  .ing-strip .ico.picked { border-color: var(--c); background: var(--cream-light); color: var(--c); }
   .ing-x {
     width: 30px;
     height: 30px;
@@ -508,7 +655,7 @@ const first = CATEGORIES[0]!;
     .form input[type="text"], .form input[type="date"], .form textarea, .preview-name { font-size: 16px; }
     .row { grid-template-columns: 1fr; }
     .meter { grid-template-columns: 84px 1fr; }
-    .ing-row { grid-template-columns: 1fr 96px 30px; }
+    .ing-line { grid-template-columns: 1fr 84px 30px 30px; }
     .foot { margin: 8px -16px 0 calc(-16px - var(--paper-left, 0px)); padding: 12px 16px 16px; flex-direction: column; align-items: stretch; }
     .save { padding: 14px 18px; }
   }

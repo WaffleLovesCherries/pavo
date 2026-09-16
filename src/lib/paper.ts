@@ -1,10 +1,10 @@
 /**
  * Which kind of paper a recipe is written on. A tiny hash of the title picks
- * one of four styles, so a recipe always gets the same sheet without anyone
+ * one of eight styles, so a recipe always gets the same sheet without anyone
  * having to choose. Shared by the cards, the viewer drawer and the recipe page.
  */
 
-export const PAPER_STYLES = ['clean', 'ruled', 'torn', 'taped'] as const;
+export const PAPER_STYLES = ['clean', 'ruled', 'torn', 'taped', 'grid', 'pinned', 'stained', 'kraft'] as const;
 export type PaperStyle = (typeof PAPER_STYLES)[number];
 
 function hash(title: string): number {
@@ -13,7 +13,7 @@ function hash(title: string): number {
   return h;
 }
 export function titleHash(title: string): number {
-  return hash(title) % 4;
+  return hash(title) % PAPER_STYLES.length;
 }
 
 export interface Paper {
@@ -23,7 +23,7 @@ export interface Paper {
 
 export function paperFor(title: string): Paper {
   const h = hash(title);
-  const style = PAPER_STYLES[h % 4]!;
-  const tilt = (((h >>> 2) % 5) - 2) * 0.55;
+  const style = PAPER_STYLES[h % PAPER_STYLES.length]!;
+  const tilt = (((h >>> 3) % 5) - 2) * 0.55;
   return { style, tilt };
 }

@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import { render } from 'astro:content';
 import { getCategory } from '../config/categories';
+import { guessIcon } from '../lib/iconMatch';
 import Icon from './Icon.astro';
 import Meter from './Meter.astro';
 import PairsBar from './PairsBar.astro';
@@ -16,6 +17,10 @@ const d = recipe.data;
 const cat = getCategory(d.category);
 const { Content } = await render(recipe);
 const eyebrow = d.kind ? `${cat.label} · ${d.kind}` : cat.label;
+// An ingredient without an explicit icon gets one from its words (src/config/iconKeywords.ts), if any.
+const ingredients = d.ingredients.map(([name, amount, icon]) => [name, amount, icon ?? guessIcon(name)] as const);
+// Reserve the icon column for every row as soon as one ingredient has an icon, so names stay aligned.
+const ingredientIcons = ingredients.some(([, , icon]) => icon);
 ---
 <div class="recipe" style={`--c:${cat.color}`}>
   {showTitle && (
@@ -30,19 +35,23 @@ const eyebrow = d.kind ? `${cat.label} · ${d.kind}` : cat.label;
 
   <div class="cols">
     <div class="main">
-      {d.ingredients.length > 0 && (
+      {ingredients.length > 0 && (
         <section>
-          <h2 class="eyebrow">Ingredients</h2>
+          <h2 class="eyebrow">Ingredientes</h2>
           <ul class="ingredients">
-            {d.ingredients.map(([name, amount]) => (
-              <li><span>{name}</span><span class="amount">{amount}</span></li>
+            {ingredients.map(([name, amount, icon]) => (
+              <li>
+                {icon ? <Icon name={icon} size={20} class="ing-icon" /> : ingredientIcons && <span class="ing-icon" />}
+                <span class="name">{name}</span>
+                <span class="amount">{amount}</span>
+              </li>
             ))}
           </ul>
         </section>
       )}
 
       <section>
-        <h2 class="eyebrow">Method</h2>
+        <h2 class="eyebrow">Elaboración</h2>
         <div class="method">
           <Content />
         </div>
@@ -51,21 +60,21 @@ const eyebrow = d.kind ? `${cat.label} · ${d.kind}` : cat.label;
 
     <aside class="side">
       <div class="stat">
-        <span class="label-sm">Prep time</span>
+        <span class="label-sm">Tiempo de preparación</span>
         <span class="stat-v">{d.prep}</span>
       </div>
       <div class="meters">
-        <Meter label="Effort" value={d.effort} color={cat.color} labelWidth={74} />
-        <Meter label="Sweetness" value={d.sweetness} color={cat.color} labelWidth={74} />
-        <Meter label="Bitterness" value={d.bitterness} color={cat.color} labelWidth={74} />
+        <Meter label="Esfuerzo" value={d.effort} color={cat.color} labelWidth={74} />
+        <Meter label="Dulzor" value={d.sweetness} color={cat.color} labelWidth={74} />
+        <Meter label="Amargor" value={d.bitterness} color={cat.color} labelWidth={74} />
         {d.intensity !== undefined && (
-          <Meter label="Intensity" value={d.intensity} color={cat.color} labelWidth={74} />
+          <Meter label="Intensidad" value={d.intensity} color={cat.color} labelWidth={74} />
         )}
       </div>
       <PairsBar value={d.pairs} />
       {d.tags.length > 0 && (
         <div class="tags-block">
-          <span class="label-sm">Tags</span>
+          <span class="label-sm">Etiquetas</span>
           <div class="tags">{d.tags.map((t) => <TagChip tag={t} />)}</div>
         </div>
       )}
@@ -107,11 +116,14 @@ const eyebrow = d.kind ? `${cat.label} · ${d.kind}` : cat.label;
   }
   .ingredients li {
     display: flex;
-    justify-content: space-between;
-    gap: 16px;
+    align-items: baseline;
+    gap: 10px;
     border-bottom: 1px dotted var(--dot);
     padding-bottom: 6px;
   }
+  .ingredients .name { flex: 1; }
+  .ingredients :global(.ing-icon) { flex: none; width: 20px; height: 20px; align-self: center; color: var(--c); }
+  .ingredients .amount { margin-left: 6px; }
   .amount { color: var(--muted-dark); white-space: nowrap; }
 
   .method { font: 400 15px/1.65 var(--sans); color: var(--ink-soft); }
@@ -124,6 +136,19 @@ const eyebrow = d.kind ? `${cat.label} · ${d.kind}` : cat.label;
     gap: 8px;
   }
   .method :global(p) { margin: 0 0 12px; }
+  /* Step icons sit at the right edge on the first line; the step reserves that width so text never runs under them. */
+  .method :global(.with-icons) { position: relative; padding-right: calc(var(--icons) * 1.5em + .4em); }
+  .method :global(.step-icons) {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 1.65em;
+    display: flex;
+    align-items: center;
+    gap: .35em;
+    color: var(--c);
+  }
+  .method :global(.step-icon) { width: 1.15em; height: 1.15em; fill: currentColor; }
   .method :global(h3) {
     margin: 18px 0 8px;
     font: 600 11px/1 var(--sans);

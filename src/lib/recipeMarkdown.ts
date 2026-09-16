@@ -1,6 +1,6 @@
 /**
  * Turns a recipe drafted in the browser into the Markdown file the content
- * collection expects (see src/content/recipes/_template.md). Pure functions,
+ * collection expects (see src/content/recipe-template.md). Pure functions,
  * so they run both in the composer's client script and in `npm test`.
  */
 
@@ -18,7 +18,8 @@ export interface RecipeDraft {
   pairs: number;
   tags: string[];
   lastMade?: string;
-  ingredients: [string, string][];
+  /** [name, amount] or [name, amount, icon]; the icon is a file name from src/icons. */
+  ingredients: [string, string, string?][];
   method: string;
 }
 
@@ -72,8 +73,10 @@ export function buildRecipeMarkdown(d: RecipeDraft): string {
   const ingredients = d.ingredients.filter(([n]) => n.trim());
   if (ingredients.length) {
     lines.push('ingredients:');
-    for (const [n, a] of ingredients) {
-      lines.push(`  - [${scalar(n, { flow: true })}, ${scalar(a, { flow: true, allowNumber: true })}]`);
+    for (const [n, a, icon] of ingredients) {
+      const items = [scalar(n, { flow: true }), scalar(a, { flow: true, allowNumber: true })];
+      if (icon?.trim()) items.push(icon.trim());
+      lines.push(`  - [${items.join(', ')}]`);
     }
   }
   lines.push('---');
