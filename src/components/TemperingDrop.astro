@@ -17,10 +17,6 @@ const { label = 'Guía de templado' } = Astro.props;
     </div>
   </div>
   <button type="button" class="pull" data-drop-toggle aria-expanded="false" aria-controls="tempering-drop" aria-label={label}>
-    <span class="plate" aria-hidden="true">
-      <span class="screw" />
-      <span class="screw" />
-    </span>
     <svg class="bail" viewBox="0 0 72 24" width="72" height="24" aria-hidden="true">
       <defs>
         <linearGradient id="brass-bail" x1="0" y1="0" x2="0" y2="1">
@@ -30,12 +26,10 @@ const { label = 'Guía de templado' } = Astro.props;
           <stop offset="1" stop-color="#E4C47C" />
         </linearGradient>
       </defs>
-      <path class="bail-shadow" d="M10 0v8q0 10 10 10h32q10 0 10-10V0" />
-      <path class="bail-bar" d="M10 0v8q0 10 10 10h32q10 0 10-10V0" />
-      <circle class="post" cx="10" cy="3" r="4.5" />
-      <circle class="post" cx="62" cy="3" r="4.5" />
+      <path class="bail-shadow" d="M10 3v8q0 10 10 10h32q10 0 10-10V3" />
+      <path class="bail-bar" d="M10 3v8q0 10 10 10h32q10 0 10-10V3" />
     </svg>
-  </button>
+  </button>0
 </div>
 
 <script>
