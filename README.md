@@ -68,7 +68,11 @@ A bad field (unknown category, effort of 7, missing name) fails the build with a
 One page is not a recipe: the guide at `/templado/` with the tempering curve of every chocolate
 (dark, milk, white, ruby, caramelised and cocoa butter). The site header is the front of that cabinet, and on the index the guide hides behind it: an unlabelled brass handle
 (`src/components/TemperingDrop.astro`), an easter egg, slides the drawer out with the curves in miniature, and clicking the open
-drawer opens the guide in the same drawer as a recipe. It is not a recipe, so it takes no part in the count or the filters.
+drawer opens the guide in the same drawer as a recipe. The handle can be clicked or dragged straight down and up; let go, the drawer
+locks open or shut, whichever is nearer or the way it was flicked (`src/lib/pull.ts`). It is not a recipe, so it takes no part in the count or the filters.
+The wrappers and the title card lie strewn about the drawer somewhere different on every load, and can be pushed around with
+the mouse: towed by a corner a note swings round, pressed against a wall it squares up, and let go at speed it slides on.
+The geometry and physics live in `src/lib/drag.ts`, covered by `npm test`; the tuning constants sit at the top of each block there.
 
 It has two looks, and `TEMPERING_STYLE` in `src/config/tempering.ts` picks one: `cabinet`, each chocolate's
 wrapper lying in an oak drawer with its curve printed on it (`CabinetGuide`, `CabinetCard`, `Wrapper`, `Note`), or `board`,

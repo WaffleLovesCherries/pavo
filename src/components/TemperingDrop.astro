@@ -2,8 +2,10 @@
 /**
  * A brass bail handle screwed into the underside of the site header, with no label:
  * an easter egg. Pulling it slides the tempering drawer (the slot) out from behind the
- * header; pulling again slides it back in. Closed by default and kept out of the tab
- * order while closed. `label` is only for assistive tech.
+ * header; pulling again slides it back in. It can also be dragged: the drawer follows the
+ * hand down or up, and let go it locks open or shut, whichever is nearer or the way it was
+ * flicked. Closed by default and kept out of the tab order while closed. `label` is only
+ * for assistive tech.
  */
 interface Props {
   label?: string;
@@ -29,15 +31,21 @@ const { label = 'Guía de templado' } = Astro.props;
       <path class="bail-shadow" d="M10 3v8q0 10 10 10h32q10 0 10-10V3" />
       <path class="bail-bar" d="M10 3v8q0 10 10 10h32q10 0 10-10V3" />
     </svg>
-  </button>0
+  </button>
 </div>
 
 <script>
+  import { lockWay } from '../lib/pull';
+
   const root = document.querySelector<HTMLElement>('[data-tempering-drop]');
   const toggle = root?.querySelector<HTMLButtonElement>('[data-drop-toggle]');
   const win = root?.querySelector<HTMLElement>('[data-drop-body]');
   const drawer = root?.querySelector<HTMLElement>('[data-drop-drawer]');
   if (root && toggle && win && drawer) {
+    /** How far the handle moves before a press counts as a pull rather than a click. */
+    const SLACK = 4;
+    /** A hand still for this long, in ms, before letting go has stopped pulling. */
+    const STILL = 80;
     const isOpen = () => root.classList.contains('is-open');
     // The window's open height is the drawer's own height, measured so it can be animated in pixels.
     const fit = () => win.style.setProperty('--h', `${drawer.offsetHeight}px`);
@@ -48,8 +56,56 @@ const { label = 'Guía de templado' } = Astro.props;
       win.inert = !open;
     };
     set(false);
-    toggle.addEventListener('click', () => set(!isOpen()));
     new ResizeObserver(() => { if (isOpen()) fit(); }).observe(drawer);
+
+    // A handle that was pulled and let go has already locked the drawer; the click that follows must not toggle it back.
+    let pulled = false;
+    toggle.addEventListener('click', () => {
+      if (pulled) return;
+      set(!isOpen());
+    });
+
+    toggle.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      pulled = false;
+      toggle.setPointerCapture(e.pointerId);
+      fit();
+      const full = drawer.offsetHeight;
+      // From wherever the drawer is right now, mid-slide included; only up and down count.
+      const from = win.getBoundingClientRect().height;
+      const y0 = e.clientY;
+      let last = { y: e.clientY, t: e.timeStamp };
+      let speed = 0;
+      let moved = false;
+
+      const move = (m: PointerEvent) => {
+        const dy = m.clientY - y0;
+        if (!moved && Math.abs(dy) < SLACK) return;
+        if (!moved) {
+          moved = true;
+          root.classList.add('is-pulling');
+        }
+        win.style.height = `${Math.max(0, Math.min(full, from + dy))}px`;
+        const dt = m.timeStamp - last.t;
+        if (dt > 0) speed = (m.clientY - last.y) / dt * 1000;
+        last = { y: m.clientY, t: m.timeStamp };
+      };
+      const drop = (u: PointerEvent) => {
+        toggle.removeEventListener('pointermove', move);
+        toggle.removeEventListener('pointerup', drop);
+        toggle.removeEventListener('pointercancel', drop);
+        if (!moved) return;
+        pulled = true;
+        const open = lockWay(win.getBoundingClientRect().height, full, speed, u.timeStamp - last.t > STILL);
+        // Back on the slide: the transition carries it the rest of the way from where it was let go.
+        root.classList.remove('is-pulling');
+        win.style.height = '';
+        set(open);
+      };
+      toggle.addEventListener('pointermove', move);
+      toggle.addEventListener('pointerup', drop);
+      toggle.addEventListener('pointercancel', drop);
+    });
   }
 </script>
 
@@ -81,6 +137,8 @@ const { label = 'Guía de templado' } = Astro.props;
     transition: height var(--slide);
   }
   .is-open .window { height: var(--h, 0px); }
+  /* In the hand the window is wherever the hand holds it, at once. */
+  .is-pulling .window { transition: none; }
   .pad {
     position: absolute;
     left: 0;
@@ -97,10 +155,13 @@ const { label = 'Guía de templado' } = Astro.props;
     border: 0;
     background: none;
     cursor: pointer;
+    /* The handle is dragged up and down, so no page scroll starts from a finger on it. */
+    touch-action: none;
     filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .45));
     transition: transform .15s ease;
   }
   .pull:active { transform: translateY(1px); }
+  .is-pulling .pull { transform: none; cursor: grabbing; }
   .pull:focus-visible { outline: 2px dashed var(--accent-light); outline-offset: 6px; border-radius: 6px; }
   @media (hover: hover) {
     .pull:hover .plate, .pull:hover .bail { filter: brightness(1.08); }

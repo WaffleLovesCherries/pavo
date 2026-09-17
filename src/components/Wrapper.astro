@@ -50,12 +50,73 @@ const { paper, ink, foil = false, kind = 'cobertura' } = c.wrap;
       linear-gradient(100deg, rgba(255, 255, 255, .14), transparent 35%, rgba(0, 0, 0, .06)),
       repeating-linear-gradient(-45deg, rgba(255, 255, 255, .05) 0 1px, transparent 1px 7px);
     border-radius: 2px;
+    /* The bar shows through from underneath (::before), so the print must stay on top of it. */
+    isolation: isolate;
+    container-type: inline-size;
+    --cols: 5;
+    --crimp: 7px;
+    /* How far the bar stops short of the wrapper's sides: the paper folds down there. */
+    --edge: 8px;
   }
   .foil {
     background-image:
       linear-gradient(115deg, #A8822F 0%, #E9CF86 18%, #C9A24A 34%, #F6E7B4 50%, #C99C42 66%, #EED597 84%, #B08A35 100%);
     background-color: transparent;
   }
+
+  /*
+   * A wrapper with a bar in it, drawn in two layers under the print. ::after is the paper's
+   * shape: taut and lit across the top face, folding down the bar's sides and under at the
+   * left and right, and climbing from each crimp up onto the bar. ::before is the slab
+   * itself under the paper: a soft lit edge on the top-left, shadow on the bottom-right,
+   * and only the faintest hint of the pieces it is scored into.
+   */
+  .wrap::before,
+  .wrap::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .wrap::after {
+    inset: 0;
+    border-radius: 2px;
+    /* Where the paper is not lying on the bar it falls away into shadow. */
+    --fold: rgba(0, 0, 0, .28);
+    --slope: rgba(0, 0, 0, .2);
+    background-image:
+      linear-gradient(115deg, rgba(255, 255, 255, .16), transparent 45%, rgba(0, 0, 0, .06)),
+      linear-gradient(90deg,
+        var(--fold), rgba(0, 0, 0, .08) var(--edge), transparent calc(var(--edge) + 8px),
+        transparent calc(100% - var(--edge) - 8px), rgba(0, 0, 0, .12) calc(100% - var(--edge)), var(--fold)),
+      linear-gradient(180deg,
+        var(--slope) var(--crimp), rgba(0, 0, 0, .06) calc(var(--crimp) + 5px), transparent calc(var(--crimp) + 14px),
+        transparent calc(100% - var(--crimp) - 16px), rgba(0, 0, 0, .08) calc(100% - var(--crimp) - 5px), var(--slope) calc(100% - var(--crimp)));
+  }
+  .wrap::before {
+    left: var(--edge);
+    right: var(--edge);
+    top: calc(var(--crimp) + 7px);
+    /* The bar fills the wrapper end to end, from one slope to the other. */
+    bottom: calc(var(--crimp) + 7px);
+    --seg: calc((100cqw - 2 * var(--edge)) / var(--cols));
+    --seg-h: calc(var(--seg) * .82);
+    border-radius: 3px;
+    --shoulder: rgba(255, 255, 255, .025);
+    --valley: rgba(0, 0, 0, .04);
+    background-image:
+      linear-gradient(90deg, var(--shoulder) 0, transparent 18%, transparent 72%, var(--valley) 100%),
+      linear-gradient(180deg, var(--shoulder) 0, transparent 18%, transparent 72%, var(--valley) 100%);
+    background-size: var(--seg) var(--seg-h);
+    box-shadow:
+      inset 2px 2px 3px rgba(255, 255, 255, .16),
+      inset -2px -3px 4px rgba(0, 0, 0, .2),
+      0 3px 5px rgba(0, 0, 0, .22),
+      0 0 10px rgba(0, 0, 0, .1);
+  }
+  /* Foil is stiffer and shinier: sharper folds, brighter face. */
+  .foil::after { --fold: rgba(0, 0, 0, .36); --slope: rgba(0, 0, 0, .26); }
+  .foil::before { --shoulder: rgba(255, 255, 255, .06); --valley: rgba(0, 0, 0, .06); }
 
   .crimp {
     position: absolute;
@@ -89,7 +150,7 @@ const { paper, ink, foil = false, kind = 'cobertura' } = c.wrap;
   }
   .note { margin: 0; font: 400 13.5px/1.4 var(--sans); opacity: .82; }
 
-  .compact { padding: 12px 10px 12px; gap: 4px; }
+  .compact { padding: 12px 10px 12px; gap: 4px; --cols: 4; --edge: 6px; }
   .compact .label { padding-bottom: 5px; border-width: 1px; }
   .compact .name { font-size: 11px; letter-spacing: .1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 </style>

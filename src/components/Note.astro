@@ -2,6 +2,9 @@
 /**
  * Something lying in the cabinet drawer: a wrapper, an index card, a ticket.
  * A slight `tilt` in degrees and a tight shadow, as if dropped on the wood.
+ * Whoever lays the notes out may slide one by setting `--dx` / `--dy` on it, turn it by
+ * overriding `--tilt` (and `transform-origin`), and mark it `is-lifted` while it is being
+ * carried; at rest the offset is zero and it lies where it was.
  */
 interface Props {
   tilt?: number;
@@ -9,17 +12,22 @@ interface Props {
 }
 const { tilt = 0, class: className = '' } = Astro.props;
 ---
-<div class:list={['lying', className]} style={`--tilt:${tilt}deg`}>
+<div class:list={['lying', className]} style={`--tilt:${tilt}deg`} data-note>
   <slot />
 </div>
 
 <style>
   .lying {
     position: relative;
-    transform: rotate(var(--tilt));
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--tilt));
     filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3)) drop-shadow(0 5px 8px rgba(0, 0, 0, .28));
+    transition: filter .15s ease;
+  }
+  /* Picked up off the wood: the shadow falls further and softer. */
+  .lying.is-lifted {
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)) drop-shadow(0 14px 18px rgba(0, 0, 0, .32));
   }
   @media (prefers-reduced-motion: reduce) {
-    .lying { transform: none; }
+    .lying { transform: translate(var(--dx, 0px), var(--dy, 0px)); transition: none; }
   }
 </style>
