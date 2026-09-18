@@ -12,6 +12,8 @@ export type Pattern = (typeof PATTERNS)[number];
 export interface SecretNote {
   text: string;
   pattern: Pattern;
+  /** The day it was written, as YYYY-MM-DD; signed at the foot of the note when given. */
+  date?: string;
 }
 
 export interface Secrets {
@@ -46,10 +48,26 @@ export function parseSecrets(raw: unknown): Secrets {
     if (!PATTERNS.includes(pattern as Pattern)) {
       throw new Error(`secrets.json: note ${i + 1} has an unknown pattern "${String(pattern)}"; one of ${PATTERNS.join(', ')}`);
     }
-    return { text: note.text, pattern: pattern as Pattern };
+    if (note.date !== undefined && !isDay(note.date)) {
+      throw new Error(`secrets.json: note ${i + 1} has a "date" that is not a day written as YYYY-MM-DD: ${JSON.stringify(note.date)}`);
+    }
+    return { text: note.text, pattern: pattern as Pattern, ...(note.date !== undefined && { date: note.date as string }) };
   });
   const title = typeof r.title === 'string' && r.title.trim() ? r.title : 'Para ti';
   return { lock: sha256(normaliseKey(r.password)), title, notes };
+}
+
+/** A real calendar day written as YYYY-MM-DD: 2026-02-30 is not one. */
+function isDay(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const d = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value;
+}
+
+/** How a note's day is signed: "18 de septiembre de 2026". Runs at build time only. */
+export function formatNoteDate(day: string): string {
+  return new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(`${day}T00:00:00Z`));
 }
 
 // SHA-256, as in FIPS 180-4, over the UTF-8 bytes of a string; the digest as lowercase hex.

@@ -2,16 +2,19 @@
 // Usage: npm run og   (set CHROME=<path to chrome.exe> if it is not in one of the usual places)
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { buildBackgroundTile } from '../lib/backgroundTile.ts';
+import { BACKGROUND } from '../config/site.ts';
 
 const WIDTH = 1200;
 const HEIGHT = 630;
 const SOURCE = new URL('./og.svg', import.meta.url);
 // JPEG: the paper texture and gradients push a PNG past the ~300 KB WhatsApp will fetch.
 const OUTPUT = new URL('../../public/og.jpg', import.meta.url);
-const FONTS = ['600 66px "Playfair Display"', '500 31px Caveat'];
+const FONTS = ['italic 400 74px "Playfair Display"', '600 13px Karla', 'italic 400 15px Newsreader'];
+const ICONS = new URL('../icons/', import.meta.url);
 
 const chrome = [
   process.env.CHROME,
@@ -23,6 +26,18 @@ const chrome = [
 if (!chrome) throw new Error('No Chrome found; set CHROME to the browser executable');
 
 const profile = await mkdtemp(join(tmpdir(), 'og-'));
+
+// The background is the site's own tile of embossed icons (src/pages/bg-tile.svg.ts), dropped into a copy
+// of the SVG next to the checkerboard, so it never has to be pasted into og.svg by hand.
+const icons = Object.fromEntries(await Promise.all(
+  (await readdir(ICONS)).filter((f) => f.endsWith('.svg'))
+    .map(async (f) => [f.slice(0, -4), await readFile(new URL(f, ICONS), 'utf8')]),
+));
+const tile = buildBackgroundTile(icons, BACKGROUND.tile).replace(/^<svg /, '<svg x="0" y="0" ');
+const svg = await readFile(SOURCE, 'utf8');
+if (!svg.includes('<!-- BG-TILE -->')) throw new Error('og.svg has no <!-- BG-TILE --> marker for the icon tile');
+const PAGE = join(profile, 'og.svg');
+await writeFile(PAGE, svg.replace('<!-- BG-TILE -->', tile));
 const browser = spawn(chrome, [
   '--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`,
   '--no-first-run', '--hide-scrollbars', `--window-size=${WIDTH},${HEIGHT}`,
@@ -45,7 +60,7 @@ try {
   await page.send('Page.enable');
   await page.send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: HEIGHT, deviceScaleFactor: 1, mobile: false });
   const loaded = page.once('Page.loadEventFired');
-  await page.send('Page.navigate', { url: SOURCE.href });
+  await page.send('Page.navigate', { url: `file:///${PAGE.replace(/\\/g, '/')}` });
   await loaded;
 
   // Wait for the Google Fonts @import so the label is not drawn in a fallback face.

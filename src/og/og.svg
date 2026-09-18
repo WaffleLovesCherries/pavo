@@ -1,47 +1,199 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <!--
-    Link preview card (WhatsApp, iMessage, Slack...): a bar of dark chocolate half out of its kraft wrapper.
-    Flat vector: solid fills only. Rendered to public/og.jpg by `npm run og`; the fonts come from Google Fonts at render time only.
+    Link preview card (WhatsApp, iMessage, Slack...): the site's oak drawer seen from above, with the
+    header's cream card and three couverture wrappers lying on its floor, over the checkerboard background.
+    Colours, grain and paper come from src/styles/global.css and paper.css; the wrappers from src/config/tempering.ts.
+    Rendered to public/og.jpg by `npm run og`, which also drops the site's embossed icon tile where the
+    BG-TILE comment sits below, so the file opened on its own shows a bare checkerboard. The fonts come from
+    Google Fonts at render time only.
   -->
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&amp;family=Caveat:wght@500&amp;display=swap');
-    .name { font: 600 66px 'Playfair Display', Georgia, serif; fill: #2B1B12; }
-    .tagline { font: 500 31px 'Caveat', cursive; fill: #6F4428; }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400&amp;family=Karla:wght@400;600;700&amp;family=Newsreader:ital,opsz,wght@1,6..72,400&amp;display=swap');
+    .title   { font: italic 400 74px 'Playfair Display', Georgia, serif; fill: #2B1B12; }
+    .tagline { font: 400 25px Karla, system-ui, sans-serif; fill: #8A6647; }
+    .eyebrow { font: 600 12px Karla, system-ui, sans-serif; letter-spacing: .16em; fill: #9A7551; }
+    .chip    { font: 600 13px Karla, system-ui, sans-serif; letter-spacing: .12em; text-anchor: middle; }
+    .name    { font: 700 17px Karla, system-ui, sans-serif; letter-spacing: .14em; }
+    .kind    { font: italic 400 15px Newsreader, Georgia, serif; text-anchor: end; opacity: .8; }
+    .temp    { font: 600 11px Karla, system-ui, sans-serif; text-anchor: middle; }
+    .axis    { font: 400 9px Karla, system-ui, sans-serif; text-anchor: middle; opacity: .6; }
+    .print   { font: 600 13px Karla, system-ui, sans-serif; letter-spacing: .06em; }
+    .curve   { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   </style>
+
   <defs>
-    <!-- The wrapper, torn along its left edge; used for the paper and again for the shadow it casts. -->
-    <path id="wrap" d="M600 108H1092a20 20 0 0 1 20 20V502a20 20 0 0 1-20 20H600L576 486 604 450 576 414 604 378 576 342 604 306 576 270 604 234 576 198 604 162 576 126Z"/>
-    <!-- One square of the bar: two flat tones. -->
-    <g id="seg">
-      <rect width="100" height="100" rx="14" fill="#4A2C1D"/>
-      <rect x="16" y="16" width="68" height="68" rx="8" fill="#5C3824"/>
+    <!-- The checkerboard behind everything: the darker squares carry the embossed icons. -->
+    <pattern id="checker" width="180" height="180" patternUnits="userSpaceOnUse">
+      <rect width="180" height="180" fill="#3A2418"/>
+      <rect width="90" height="90" fill="#2B1B12"/>
+      <rect x="90" y="90" width="90" height="90" fill="#2B1B12"/>
+    </pattern>
+
+    <!-- Oak: the frame's grain runs along it, the floor's the other way. -->
+    <linearGradient id="oak" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C08A52"/><stop offset=".4" stop-color="#9C6B3C"/><stop offset="1" stop-color="#6B4424"/>
+    </linearGradient>
+    <pattern id="grainV" width="23" height="4" patternUnits="userSpaceOnUse">
+      <rect width="2" height="4" fill="#000" fill-opacity=".07"/><rect x="9" width="1" height="4" fill="#fff" fill-opacity=".05"/>
+    </pattern>
+    <pattern id="bandsV" width="160" height="4" patternUnits="userSpaceOnUse">
+      <rect x="57" width="14" height="4" fill="#000" fill-opacity=".06"/><rect x="138" width="22" height="4" fill="#fff" fill-opacity=".04"/>
+    </pattern>
+    <pattern id="grainH" width="4" height="23" patternUnits="userSpaceOnUse">
+      <rect width="4" height="2" fill="#000" fill-opacity=".06"/><rect y="9" width="4" height="1" fill="#fff" fill-opacity=".05"/>
+    </pattern>
+    <pattern id="bandsH" width="4" height="170" patternUnits="userSpaceOnUse">
+      <rect y="61" width="4" height="18" fill="#000" fill-opacity=".05"/><rect y="150" width="4" height="20" fill="#fff" fill-opacity=".04"/>
+    </pattern>
+
+    <!-- The drawer's walls throw shadow onto its floor. -->
+    <linearGradient id="wallTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".42"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
+    <linearGradient id="wallBottom" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
+    <linearGradient id="wallLeft" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
+    <linearGradient id="wallRight" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
+
+    <!-- Paper: a highlight down one side, and the folds where a wrapper turns under the bar. -->
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".06"/>
+    </linearGradient>
+    <linearGradient id="cardSheen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".035"/>
+    </linearGradient>
+    <linearGradient id="foldX" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="300" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset=".027" stop-color="#000" stop-opacity=".08"/><stop offset=".055" stop-color="#000" stop-opacity="0"/>
+      <stop offset=".945" stop-color="#000" stop-opacity="0"/><stop offset=".973" stop-color="#000" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".3"/>
+    </linearGradient>
+    <linearGradient id="foldY" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="180">
+      <stop offset=".039" stop-color="#000" stop-opacity=".22"/><stop offset=".067" stop-color="#000" stop-opacity=".06"/><stop offset=".117" stop-color="#000" stop-opacity="0"/>
+      <stop offset=".872" stop-color="#000" stop-opacity="0"/><stop offset=".933" stop-color="#000" stop-opacity=".08"/><stop offset=".961" stop-color="#000" stop-opacity=".22"/>
+    </linearGradient>
+    <!-- The slab under the paper: lit on its top-left shoulder, in shadow bottom-right. -->
+    <linearGradient id="slab" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".1"/><stop offset=".25" stop-color="#fff" stop-opacity="0"/><stop offset=".75" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".14"/>
+    </linearGradient>
+    <pattern id="crimp" width="4" height="7" patternUnits="userSpaceOnUse">
+      <rect width="2" height="7" fill="#000" fill-opacity=".16"/><rect x="2" width="2" height="7" fill="#fff" fill-opacity=".18"/>
+    </pattern>
+
+    <!-- Brass, for the pull on the drawer front. -->
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F6E7B4"/><stop offset=".35" stop-color="#D9B85E"/><stop offset=".7" stop-color="#B08A35"/><stop offset="1" stop-color="#7E5F1E"/>
+    </linearGradient>
+
+    <filter id="drawerShadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000" flood-opacity=".6"/></filter>
+    <filter id="cardShadow" x="-5%" y="-10%" width="110%" height="130%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity=".38"/></filter>
+    <filter id="wrapShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000" flood-opacity=".28"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#000" flood-opacity=".14"/>
+    </filter>
+
+    <!-- One wrapper's paper, 300x180, in whatever colour is set on the <use>. Label and curve are printed on top. -->
+    <g id="wrapper">
+      <rect width="300" height="180" rx="2" fill="currentColor"/>
+      <rect x="8" y="14" width="284" height="152" rx="3" fill="url(#slab)"/>
+      <rect width="300" height="180" rx="2" fill="url(#sheen)"/>
+      <rect width="300" height="180" rx="2" fill="url(#foldX)"/>
+      <rect width="300" height="180" rx="2" fill="url(#foldY)"/>
+      <path d="M2 0h296a2 2 0 0 1 2 2v5H0V2a2 2 0 0 1 2-2z" fill="url(#crimp)"/>
+      <path d="M0 173h300v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2z" fill="url(#crimp)"/>
+      <!-- the printed axis, shared by the three curves -->
+      <text class="axis" x="28" y="73">50°</text><text class="axis" x="28" y="92">40°</text><text class="axis" x="28" y="111">30°</text><text class="axis" x="28" y="130">20°</text>
+      <text class="axis" x="127" y="143">fundir</text><text class="axis" x="212" y="143">enfriar</text><text class="axis" x="262" y="143">trabajar</text>
     </g>
   </defs>
 
-  <rect width="1200" height="630" fill="#1C110B"/>
+  <!-- background -->
+  <rect width="1200" height="630" fill="url(#checker)"/>
+  <!-- BG-TILE -->
 
-  <g transform="rotate(-6 600 315)">
-    <!-- the tablet: its side, then its face -->
-    <rect x="120" y="151" width="960" height="360" rx="22" fill="#24150B"/>
-    <rect x="120" y="135" width="960" height="360" rx="22" fill="#3A2418"/>
-    <use href="#seg" x="130" y="145"/><use href="#seg" x="250" y="145"/><use href="#seg" x="370" y="145"/><use href="#seg" x="490" y="145"/>
-    <use href="#seg" x="610" y="145"/><use href="#seg" x="730" y="145"/><use href="#seg" x="850" y="145"/><use href="#seg" x="970" y="145"/>
-    <use href="#seg" x="130" y="265"/><use href="#seg" x="250" y="265"/><use href="#seg" x="370" y="265"/><use href="#seg" x="490" y="265"/>
-    <use href="#seg" x="610" y="265"/><use href="#seg" x="730" y="265"/><use href="#seg" x="850" y="265"/><use href="#seg" x="970" y="265"/>
-    <use href="#seg" x="130" y="385"/><use href="#seg" x="250" y="385"/><use href="#seg" x="370" y="385"/><use href="#seg" x="490" y="385"/>
-    <use href="#seg" x="610" y="385"/><use href="#seg" x="730" y="385"/><use href="#seg" x="850" y="385"/><use href="#seg" x="970" y="385"/>
+  <!-- the drawer, pulled out and seen from above -->
+  <g transform="rotate(-2 600 315)">
+    <g filter="url(#drawerShadow)">
+      <rect x="70" y="48" width="1060" height="534" rx="8" fill="url(#oak)"/>
+    </g>
+    <rect x="70" y="48" width="1060" height="534" rx="8" fill="url(#grainV)"/>
+    <rect x="70" y="48" width="1060" height="534" rx="8" fill="url(#bandsV)"/>
+    <rect x="70.5" y="48.5" width="1059" height="533" rx="8" fill="none" stroke="#000" stroke-opacity=".35"/>
+    <path d="M78 50h1044" stroke="#fff" stroke-opacity=".22" stroke-width="2"/>
 
-    <!-- foil -->
-    <path fill="#D5CFC3" d="M520 122H1100V508H520L508 472 530 432 508 392 530 352 508 312 530 272 508 232 530 192 508 152Z"/>
+    <!-- floor -->
+    <rect x="86" y="64" width="1028" height="502" rx="3" fill="#B07E4E"/>
+    <rect x="86" y="64" width="1028" height="502" rx="3" fill="url(#grainH)"/>
+    <rect x="86" y="64" width="1028" height="502" rx="3" fill="url(#bandsH)"/>
+    <rect x="86" y="64" width="1028" height="34" fill="url(#wallTop)"/>
+    <rect x="86" y="536" width="1028" height="30" fill="url(#wallBottom)"/>
+    <rect x="86" y="64" width="26" height="502" fill="url(#wallLeft)"/>
+    <rect x="1088" y="64" width="26" height="502" fill="url(#wallRight)"/>
+    <rect x="86.5" y="64.5" width="1027" height="501" rx="3" fill="none" stroke="#000" stroke-opacity=".3"/>
 
-    <!-- kraft wrapper: the shadow it casts, then the paper -->
-    <use href="#wrap" fill="#000" fill-opacity=".35" transform="translate(-12 6)"/>
-    <use href="#wrap" fill="#DCC5A4"/>
+    <!-- the header's cream card, lying in the drawer -->
+    <g transform="rotate(.7 600 213)">
+      <g filter="url(#cardShadow)">
+        <rect x="112" y="88" width="976" height="250" rx="3" fill="#F2E3CE"/>
+      </g>
+      <rect x="112" y="88" width="976" height="250" rx="3" fill="url(#cardSheen)"/>
 
-    <!-- printed label -->
-    <text class="name" x="856" y="278" text-anchor="middle">Chocolates</text>
-    <text class="name" x="856" y="346" text-anchor="middle">para Andrea</text>
-    <text class="tagline" x="856" y="408" text-anchor="middle">Delicias diseñadas</text>
-    <text class="tagline" x="856" y="444" text-anchor="middle">con mi princesa en mente…</text>
+      <!-- the recipe box -->
+      <g transform="translate(140 108) scale(1.2)" fill="none" stroke="#6F4428" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 11h34a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zM12 15h6M32 15h6M9 19v20a2 2 0 0 0 2 2h28a2 2 0 0 0 2-2V19M9 30h32M14 24.5h6M30 35.5h6M22.5 19v4.5a1.5 1.5 0 0 0 1.5 1.5h2a1.5 1.5 0 0 0 1.5-1.5V19"/>
+      </g>
+
+      <text class="title" x="226" y="174">Chocolates para Andrea</text>
+      <text class="tagline" x="229" y="212">Delicias diseñadas con mi princesa en mente…</text>
+      <path d="M140 246H1060" stroke="#C9AE8A" stroke-width="1.5" stroke-dasharray="5 4"/>
+
+      <text class="eyebrow" x="140" y="292">CATEGORÍA</text>
+      <g transform="translate(250 268)">
+        <rect width="108" height="38" rx="8" fill="#6F4428"/><text class="chip" x="54" y="24" fill="#F7EEDF">TODAS</text>
+      </g>
+      <g transform="translate(370 268)">
+        <rect x=".75" y=".75" width="128.5" height="36.5" rx="8" fill="#F7EEDF" stroke="#7A3E22" stroke-width="1.5"/><text class="chip" x="65" y="24" fill="#7A3E22">GANACHE</text>
+      </g>
+      <g transform="translate(512 268)">
+        <rect x=".75" y=".75" width="112.5" height="36.5" rx="8" fill="#F7EEDF" stroke="#9A7420" stroke-width="1.5"/><text class="chip" x="57" y="24" fill="#9A7420">CREMA</text>
+      </g>
+      <g transform="translate(638 268)">
+        <rect x=".75" y=".75" width="106.5" height="36.5" rx="8" fill="#F7EEDF" stroke="#B0522E" stroke-width="1.5"/><text class="chip" x="54" y="24" fill="#B0522E">SALSA</text>
+      </g>
+      <g transform="translate(758 268)">
+        <rect x=".75" y=".75" width="116.5" height="36.5" rx="8" fill="#F7EEDF" stroke="#7B4E5B" stroke-width="1.5"/><text class="chip" x="59" y="24" fill="#7B4E5B">POSTRE</text>
+      </g>
+    </g>
+
+    <!-- three couverture wrappers on the floor (temperatures from src/config/tempering.ts) -->
+    <g transform="translate(120 362) rotate(-3 150 90)" filter="url(#wrapShadow)" color="#3A2418" fill="#F2E3CE" stroke="#F2E3CE">
+      <use href="#wrapper"/>
+      <text class="name" x="16" y="40" stroke="none">NEGRO</text><text class="kind" x="284" y="40" stroke="none">cobertura</text>
+      <path d="M16 48H284" stroke-width="1.5"/>
+      <path class="curve" d="M40 122C66 122 78 74 104 74H150C176 74 180 112 206 112H222C238 112 240 104 256 104H276"/>
+      <circle cx="276" cy="104" r="2.5" stroke="none"/>
+      <text class="temp" x="127" y="67" stroke="none">45–50°</text><text class="temp" x="214" y="127" stroke="none">27–28°</text><text class="temp" x="266" y="96" stroke="none">31–32°</text>
+      <text class="print" x="16" y="163" stroke="none">45–50 · 27–28 · 31–32 °C</text>
+    </g>
+    <g transform="translate(450 372) rotate(2 150 90)" filter="url(#wrapShadow)" color="#B97C45" fill="#2B1B12" stroke="#2B1B12">
+      <use href="#wrapper"/>
+      <text class="name" x="16" y="40" stroke="none">CON LECHE</text><text class="kind" x="284" y="40" stroke="none">cobertura</text>
+      <path d="M16 48H284" stroke-width="1.5"/>
+      <path class="curve" d="M40 122C66 122 78 84 104 84H150C176 84 180 114 206 114H222C238 114 240 108 256 108H276"/>
+      <circle cx="276" cy="108" r="2.5" stroke="none"/>
+      <text class="temp" x="127" y="77" stroke="none">40–45°</text><text class="temp" x="214" y="129" stroke="none">26–27°</text><text class="temp" x="266" y="100" stroke="none">29–30°</text>
+      <text class="print" x="16" y="163" stroke="none">40–45 · 26–27 · 29–30 °C</text>
+    </g>
+    <g transform="translate(780 360) rotate(-1.5 150 90)" filter="url(#wrapShadow)" color="#F5ECDD" fill="#4A2C1D" stroke="#4A2C1D">
+      <use href="#wrapper"/>
+      <text class="name" x="16" y="40" stroke="none">BLANCO</text><text class="kind" x="284" y="40" stroke="none">cobertura</text>
+      <path d="M16 48H284" stroke-width="1.5"/>
+      <path class="curve" d="M40 122C66 122 78 84 104 84H150C176 84 180 116 206 116H222C238 116 240 110 256 110H276"/>
+      <circle cx="276" cy="110" r="2.5" stroke="none"/>
+      <text class="temp" x="127" y="77" stroke="none">40–45°</text><text class="temp" x="214" y="131" stroke="none">25–26°</text><text class="temp" x="266" y="102" stroke="none">28–29°</text>
+      <text class="print" x="16" y="163" stroke="none">40–45 · 25–26 · 28–29 °C</text>
+    </g>
+
+    <!-- brass pull on the front rail -->
+    <g transform="translate(600 574)">
+      <path d="M-52 0v20a7 7 0 0 0 7 7h90a7 7 0 0 0 7-7V0" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="12" stroke-linecap="round" transform="translate(0 3)"/>
+      <path d="M-52 0v20a7 7 0 0 0 7 7h90a7 7 0 0 0 7-7V0" fill="none" stroke="url(#brass)" stroke-width="10" stroke-linecap="round"/>
+      <path d="M-49 2v17a5 5 0 0 0 5 5h88" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
   </g>
 </svg>

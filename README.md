@@ -91,14 +91,15 @@ The word and the notes live in `src/config/secrets.json`:
   "password": "…",
   "title": "Para ti",
   "notes": [
-    { "text": "…", "pattern": "hearts" },
+    { "text": "…", "pattern": "hearts", "date": "2026-09-18" },
     { "text": "…" }
   ]
 }
 ```
 
 Each note is a slip of patterned stationery (`SecretNote`): `pattern` is one of `hearts`, `flowers`, `dots`, `stripes` or
-`stars`, and a note without one gets a pattern from its text, the way recipes get a sheet. `title` is optional and names the
+`stars`, and a note without one gets a pattern from its text, the way recipes get a sheet. `date` is optional, a day written
+as `YYYY-MM-DD`, signed by hand at the foot of the note ("18 de septiembre de 2026"). `title` is optional and names the
 viewer drawer. The word is compared ignoring case and surrounding spaces; only its SHA-256 reaches the page (`src/lib/secret.ts`,
 covered by `npm test`), though the notes themselves are in the page like everything else on a static site. A note without text
 or with an unknown pattern fails the build with a message naming it.
@@ -131,7 +132,7 @@ Title, tagline, search placeholder and the number of tag chips in the header liv
 
 ## Link preview
 
-Sharing a link in WhatsApp, iMessage or Slack shows a half-unwrapped chocolate bar, `public/og.jpg`.
+Sharing a link in WhatsApp, iMessage or Slack shows the open oak drawer with the header card and three wrappers in it, `public/og.jpg`.
 It is drawn in `src/og/og.svg`; after editing it, run `npm run og` to re-render the JPEG with a local Chrome
 (set `CHROME` if yours is somewhere unusual) and commit both files. Every page uses the same image;
 the title and description in the card come from the page.

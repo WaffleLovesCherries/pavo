@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { PATTERNS, normaliseKey, parseSecrets, patternFor, sha256 } from './secret.ts';
+import { PATTERNS, formatNoteDate, normaliseKey, parseSecrets, patternFor, sha256 } from './secret.ts';
 
 test('there are five patterns', () => {
   assert.deepEqual([...PATTERNS], ['hearts', 'flowers', 'dots', 'stripes', 'stars']);
@@ -48,6 +48,23 @@ test('parseSecrets fills in defaults and keeps what is given', () => {
   assert.equal(s.notes[0]!.pattern, patternFor('Hola'));
   assert.equal(s.notes[1]!.pattern, 'stars');
   assert.equal(parseSecrets({ password: 'x', title: 'Mía', notes: [{ text: 'a' }] }).title, 'Mía');
+});
+
+test('a note may carry the day it was written, kept as YYYY-MM-DD', () => {
+  const s = parseSecrets({ password: 'x', notes: [{ text: 'a', date: '2026-09-18' }, { text: 'b' }] });
+  assert.equal(s.notes[0]!.date, '2026-09-18');
+  assert.equal(s.notes[1]!.date, undefined);
+});
+
+test('a date that is not a real day fails the build, naming the note', () => {
+  assert.throws(() => parseSecrets({ password: 'x', notes: [{ text: 'a', date: '18/09/2026' }] }), /note 1.*date/);
+  assert.throws(() => parseSecrets({ password: 'x', notes: [{ text: 'a' }, { text: 'b', date: '2026-02-30' }] }), /note 2.*date/);
+  assert.throws(() => parseSecrets({ password: 'x', notes: [{ text: 'a', date: 20260918 }] }), /note 1.*date/);
+});
+
+test('the date is written out in Spanish', () => {
+  assert.equal(formatNoteDate('2026-09-18'), '18 de septiembre de 2026');
+  assert.equal(formatNoteDate('2025-01-01'), '1 de enero de 2025');
 });
 
 test('parseSecrets refuses what it cannot use, naming the note', () => {
