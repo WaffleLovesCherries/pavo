@@ -6,6 +6,11 @@
  * hand down or up, and let go it locks open or shut, whichever is nearer or the way it was
  * flicked. Closed by default and kept out of the tab order while closed. `label` is only
  * for assistive tech.
+ *
+ * Behind the same handle hides a second drawer, in the `secret` slot: when something in
+ * the first raises an `unlock` event (the keyhole, src/components/Keyhole.astro), the
+ * drawer slides shut, the second is put in its place and it slides open again. Shut
+ * again, the first is back behind the handle, and the second has to be unlocked anew.
  */
 interface Props {
   label?: string;
@@ -15,7 +20,8 @@ const { label = 'Guía de templado' } = Astro.props;
 <div class="drop" data-tempering-drop>
   <div class="window" id="tempering-drop" data-drop-body>
     <div class="pad" data-drop-drawer>
-      <slot />
+      <div data-drop-card="main"><slot /></div>
+      <div data-drop-card="secret" hidden><slot name="secret" /></div>
     </div>
   </div>
   <button type="button" class="pull" data-drop-toggle aria-expanded="false" aria-controls="tempering-drop" aria-label={label}>
@@ -46,17 +52,48 @@ const { label = 'Guía de templado' } = Astro.props;
     const SLACK = 4;
     /** A hand still for this long, in ms, before letting go has stopped pulling. */
     const STILL = 80;
+    /** The slide takes this long (see --slide); the fallback if no transitionend arrives. */
+    const SLIDE = 750;
     const isOpen = () => root.classList.contains('is-open');
     // The window's open height is the drawer's own height, measured so it can be animated in pixels.
     const fit = () => win.style.setProperty('--h', `${drawer.offsetHeight}px`);
+
+    // Which drawer is behind the handle: the main one, or the secret one once unlocked.
+    const cards = [...drawer.querySelectorAll<HTMLElement>('[data-drop-card]')];
+    const showCard = (name: string) => { for (const c of cards) c.hidden = c.dataset.dropCard !== name; };
+    const showing = () => cards.find((c) => !c.hidden)?.dataset.dropCard ?? 'main';
+    // Runs `fn` once the drawer has finished sliding (or straight away without a transition).
+    let slide = 0;
+    const afterSlide = (fn: () => void) => {
+      const token = ++slide;
+      let done = false;
+      const finish = () => {
+        if (done || token !== slide) return;
+        done = true;
+        win.removeEventListener('transitionend', onEnd);
+        fn();
+      };
+      const onEnd = (e: TransitionEvent) => { if (e.target === win && e.propertyName === 'height') finish(); };
+      win.addEventListener('transitionend', onEnd);
+      window.setTimeout(finish, SLIDE + 50);
+    };
+
     const set = (open: boolean) => {
       if (open) fit();
       root.classList.toggle('is-open', open);
       toggle.setAttribute('aria-expanded', String(open));
       win.inert = !open;
+      // The secret drawer only comes out once per unlocking: shut, the main one is back behind the handle.
+      if (!open && showing() !== 'main') afterSlide(() => { if (!isOpen()) showCard('main'); });
     };
     set(false);
     new ResizeObserver(() => { if (isOpen()) fit(); }).observe(drawer);
+
+    // Unlocked: shut, swap, open again.
+    root.addEventListener('unlock', () => {
+      set(false);
+      afterSlide(() => { showCard('secret'); set(true); });
+    });
 
     // A handle that was pulled and let go has already locked the drawer; the click that follows must not toggle it back.
     let pulled = false;

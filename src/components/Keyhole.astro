@@ -1,0 +1,133 @@
+---
+/**
+ * A keyhole cut into the drawer floor of the cabinet card, somewhere different on every
+ * load and under the notes, so it may take a wrapper pushed aside to find it. Clicking it
+ * (not the card: the guide does not open) shows the key prompt lying next to it
+ * (src/components/KeyPrompt.astro, a sibling of the card so no form sits inside the link).
+ * The right key raises an `unlock` event that bubbles up to the drop, which swaps the
+ * drawers. Only the hash of the key reaches the page; see src/lib/secret.ts.
+ */
+interface Props {
+  lock: string;
+  label?: string;
+}
+const { lock, label = 'Cerradura' } = Astro.props;
+---
+<span class="hole" role="button" tabindex="0" aria-label={label} data-keyhole data-lock={lock}></span>
+
+<script>
+  import { normaliseKey, sha256 } from '../lib/secret';
+
+  /** How close to the walls the keyhole may be cut, as a fraction of the floor. */
+  const EDGE = 0.08;
+
+  for (const hole of document.querySelectorAll<HTMLElement>('[data-keyhole]')) {
+    const slot = hole.closest<HTMLElement>('[data-key-slot]');
+    const form = slot?.querySelector<HTMLFormElement>('form[data-key]');
+    const input = form?.querySelector<HTMLInputElement>('input');
+    const lock = hole.dataset.lock ?? '';
+    if (!slot || !form || !input) continue;
+
+    // Somewhere on the floor, away from the walls; as fractions, so a resize keeps it there.
+    hole.style.left = `${(EDGE + Math.random() * (1 - 2 * EDGE)) * 100}%`;
+    hole.style.top = `${(EDGE + Math.random() * (1 - 2 * EDGE)) * 100}%`;
+
+    const isOpen = () => !form.hidden;
+    const close = () => {
+      if (!isOpen()) return;
+      form.hidden = true;
+      form.classList.remove('is-wrong');
+      input.value = '';
+    };
+    const open = () => {
+      // Beside the keyhole, toward whichever corner has more room: the drawer's window clips
+      // anything hanging out of it, so the slip stays over the wood.
+      const at = hole.getBoundingClientRect();
+      const box = slot.getBoundingClientRect();
+      const x = at.left + at.width / 2 - box.left;
+      const y = at.top + at.height / 2 - box.top;
+      if (x < box.width / 2) { form.style.left = `${x - 12}px`; form.style.right = ''; }
+      else { form.style.right = `${box.width - x - 12}px`; form.style.left = ''; }
+      if (y < box.height / 2) { form.style.top = `${at.bottom - box.top + 6}px`; form.style.bottom = ''; }
+      else { form.style.bottom = `${box.height - (at.top - box.top) + 6}px`; form.style.top = ''; }
+      form.hidden = false;
+      input.focus({ preventScroll: true });
+    };
+
+    hole.addEventListener('click', (e) => {
+      // Not a click on the card: the guide stays shut.
+      e.preventDefault();
+      e.stopPropagation();
+      if (isOpen()) close(); else open();
+    });
+    hole.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      e.stopPropagation();
+      hole.click();
+    });
+    // The card underneath must not see a press on the hole as the start of anything.
+    hole.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (sha256(normaliseKey(input.value)) === lock) {
+        close();
+        hole.dispatchEvent(new CustomEvent('unlock', { bubbles: true }));
+        return;
+      }
+      // Wrong: a shake, and the field is cleared for another try.
+      form.classList.remove('is-wrong');
+      void form.offsetWidth;
+      form.classList.add('is-wrong');
+      input.value = '';
+      input.focus();
+    });
+    form.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); hole.focus(); } });
+    document.addEventListener('pointerdown', (e) => {
+      if (isOpen() && !form.contains(e.target as Node) && e.target !== hole) close();
+    });
+  }
+</script>
+
+<style>
+  /*
+   * The hole: a round eye over a flared slot, cut through the floor into the dark, with the
+   * wood's lit edge catching on its lower lip. Without the script it sits in the bottom-right
+   * corner. It lies under the notes: they are positioned later in the same stacking context.
+   */
+  .hole {
+    --keyhole: polygon(50% 0, 82% 12%, 100% 32%, 82% 55%, 100% 100%, 0 100%, 18% 55%, 0 32%, 18% 12%);
+    position: absolute;
+    left: 88%;
+    top: 84%;
+    /* The element is only something to aim at, a little bigger than the hole itself. */
+    width: 28px;
+    height: 32px;
+    margin: -16px 0 0 -14px;
+    cursor: pointer;
+  }
+  /* The lit lower lip and the shadow over the top edge, a hair larger than the hole and shifted down. */
+  .hole::before {
+    content: '';
+    position: absolute;
+    left: 7.5px;
+    top: 8px;
+    width: 13px;
+    height: 18px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, .5), rgba(255, 255, 255, .3));
+    clip-path: var(--keyhole);
+  }
+  /* The hole: a round eye over a flared slot, through the floor into the dark. */
+  .hole::after {
+    content: '';
+    position: absolute;
+    left: 8.5px;
+    top: 8px;
+    width: 11px;
+    height: 16px;
+    background: linear-gradient(180deg, #0B0604, #1A0F08);
+    clip-path: var(--keyhole);
+  }
+  .hole:focus-visible { outline: 2px dashed var(--accent-light); outline-offset: -2px; border-radius: 6px; }
+</style>

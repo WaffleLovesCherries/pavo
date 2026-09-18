@@ -48,7 +48,8 @@ ingredients:               # [name, amount] or [name, amount, icon]
 2. Pour over the couverture in thirds, emulsifying between each addition.
 ```
 
-Clicking a recipe opens it in a drawer over the index; its URL still works as a standalone page.
+Clicking a recipe opens it in a drawer over the index. Its own URL (`/recipes/<slug>/`) renders that same index with the
+drawer already open, so a reload or a shared link lands on the same view; closing the drawer puts the index's URL back.
 Every recipe is drawn on one of eight sheets of paper (clean, ring notebook, torn off, taped, squared, pinned, cup-stained, kraft),
 picked by a tiny hash of the title in `src/lib/paper.ts`, so nothing has to be chosen by hand.
 
@@ -72,7 +73,35 @@ drawer opens the guide in the same drawer as a recipe. The handle can be clicked
 locks open or shut, whichever is nearer or the way it was flicked (`src/lib/pull.ts`). It is not a recipe, so it takes no part in the count or the filters.
 The wrappers and the title card lie strewn about the drawer somewhere different on every load, and can be pushed around with
 the mouse: towed by a corner a note swings round, pressed against a wall it squares up, and let go at speed it slides on.
-The geometry and physics live in `src/lib/drag.ts`, covered by `npm test`; the tuning constants sit at the top of each block there.
+The strewing and the pointer handling live in `src/lib/strew.ts`, shared with the secret drawer below; the geometry and physics
+in `src/lib/drag.ts`, covered by `npm test`. The tuning constants sit at the top of each file.
+Like a recipe, `/templado/` is the index with the guide's drawer already open.
+
+## The secret drawer
+
+Cut into the floor of the tempering drawer, somewhere different on every load and often under a wrapper, is a keyhole
+(`src/components/Keyhole.astro`). Clicking it asks for a word; the right one slides the drawer shut and a second one open in
+its place (`SecretCard`), with notes lying strewn on the wood like the wrappers. Clicking that drawer opens the notes full size
+in the viewer (`SecretNotes`). Pulling the handle shut puts the tempering drawer back, and the keyhole has to be unlocked again.
+
+The word and the notes live in `src/config/secrets.json`:
+
+```json
+{
+  "password": "…",
+  "title": "Para ti",
+  "notes": [
+    { "text": "…", "pattern": "hearts" },
+    { "text": "…" }
+  ]
+}
+```
+
+Each note is a slip of patterned stationery (`SecretNote`): `pattern` is one of `hearts`, `flowers`, `dots`, `stripes` or
+`stars`, and a note without one gets a pattern from its text, the way recipes get a sheet. `title` is optional and names the
+viewer drawer. The word is compared ignoring case and surrounding spaces; only its SHA-256 reaches the page (`src/lib/secret.ts`,
+covered by `npm test`), though the notes themselves are in the page like everything else on a static site. A note without text
+or with an unknown pattern fails the build with a message naming it.
 
 It has two looks, and `TEMPERING_STYLE` in `src/config/tempering.ts` picks one: `cabinet`, each chocolate's
 wrapper lying in an oak drawer with its curve printed on it (`CabinetGuide`, `CabinetCard`, `Wrapper`, `Note`), or `board`,
@@ -99,6 +128,16 @@ It is inlined at build time and takes the category colour.
 ## Site text
 
 Title, tagline, search placeholder and the number of tag chips in the header live in `src/config/site.ts`.
+
+## Link preview
+
+Sharing a link in WhatsApp, iMessage or Slack shows a half-unwrapped chocolate bar, `public/og.jpg`.
+It is drawn in `src/og/og.svg`; after editing it, run `npm run og` to re-render the JPEG with a local Chrome
+(set `CHROME` if yours is somewhere unusual) and commit both files. Every page uses the same image;
+the title and description in the card come from the page.
+
+WhatsApp caches previews for a long time, so a link that was already shared keeps its old card for a while.
+Add `?v=2` to the link to see the new one right away.
 
 ## Background
 

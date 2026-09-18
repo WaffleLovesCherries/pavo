@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "og": "node src/og/render.mjs",
     "test": "node --test src/lib/*.test.ts"
   },
   "dependencies": {

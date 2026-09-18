@@ -1,0 +1,79 @@
+---
+/**
+ * The key prompt: a small slip of paper that appears beside the keyhole
+ * (src/components/Keyhole.astro) asking for the word. Hidden until the keyhole is clicked;
+ * the keyhole's script positions, shows, checks and hides it. Lives next to the card, not
+ * inside its link, so a form never sits inside an anchor.
+ */
+interface Props {
+  placeholder?: string;
+  submitLabel?: string;
+}
+const { placeholder = 'Yo soy tu...', submitLabel = 'Abrir' } = Astro.props;
+---
+<form class="key" data-key hidden autocomplete="off">
+  <input type="password" name="key" placeholder={placeholder} aria-label={placeholder} autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" />
+  <button type="submit" aria-label={submitLabel}>
+    <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="7" cy="10" r="3.5" />
+      <path d="M10.5 10h7M15 10v3M17.5 10v2" />
+    </svg>
+  </button>
+</form>
+
+<style>
+  .key {
+    position: absolute;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 6px 6px 10px;
+    background: var(--cream-lighter);
+    border-radius: 2px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 6px 12px rgba(0, 0, 0, .3);
+    transform: rotate(-1deg);
+  }
+  .key[hidden] { display: none; }
+  .key input {
+    width: 150px;
+    padding: 4px 0;
+    border: 0;
+    border-bottom: 1px dashed var(--sand-dark);
+    background: none;
+    font: 400 16px/1.2 var(--serif);
+    color: var(--ink);
+    outline: 0;
+  }
+  .key input::placeholder { color: var(--muted); font-style: italic; }
+  .key input:focus { border-color: var(--brown); }
+  .key button {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--sand-dark);
+    border-radius: 50%;
+    background: none;
+    color: var(--brown);
+    cursor: pointer;
+  }
+  .key button:hover { border-color: var(--brown); color: var(--ink); }
+  .key button:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
+  .key.is-wrong { animation: shake .4s ease; }
+  @keyframes shake {
+    20% { transform: rotate(-1deg) translateX(-5px); }
+    40% { transform: rotate(-1deg) translateX(4px); }
+    60% { transform: rotate(-1deg) translateX(-3px); }
+    80% { transform: rotate(-1deg) translateX(2px); }
+  }
+  @media (max-width: 720px) {
+    .key input { width: 120px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .key.is-wrong { animation: none; }
+  }
+</style>
