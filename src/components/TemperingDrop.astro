@@ -41,6 +41,7 @@ const { label = 'Guía de templado' } = Astro.props;
 </div>
 
 <script>
+  import { grip } from '../lib/grip';
   import { lockWay } from '../lib/pull';
 
   const root = document.querySelector<HTMLElement>('[data-tempering-drop]');
@@ -102,8 +103,10 @@ const { label = 'Guía de templado' } = Astro.props;
       set(!isOpen());
     });
 
+    // The pointer pulling the handle; a second finger on it is ignored (src/lib/grip.ts).
+    const holder = grip();
     toggle.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;
+      if (e.button !== 0 || !holder.take(e.pointerId)) return;
       pulled = false;
       toggle.setPointerCapture(e.pointerId);
       fit();
@@ -116,6 +119,7 @@ const { label = 'Guía de templado' } = Astro.props;
       let moved = false;
 
       const move = (m: PointerEvent) => {
+        if (!holder.holds(m.pointerId)) return;
         const dy = m.clientY - y0;
         if (!moved && Math.abs(dy) < SLACK) return;
         if (!moved) {
@@ -128,6 +132,8 @@ const { label = 'Guía de templado' } = Astro.props;
         last = { y: m.clientY, t: m.timeStamp };
       };
       const drop = (u: PointerEvent) => {
+        if (!holder.holds(u.pointerId)) return;
+        holder.free(u.pointerId);
         toggle.removeEventListener('pointermove', move);
         toggle.removeEventListener('pointerup', drop);
         toggle.removeEventListener('pointercancel', drop);

@@ -2,12 +2,14 @@
  * Notes strewn about a drawer floor and pushed around with the mouse or a finger: the
  * cabinet card and the secret card (src/components/CabinetCard.astro, SecretCard.astro).
  * `card` is the element that opens on click; a drag is not a click, so a note that was
- * dragged and let go opens nothing. The geometry and physics are in ./drag.ts.
+ * dragged and let go opens nothing. The geometry and physics are in ./drag.ts. One hand at a
+ * time on each note (./grip.ts): a second finger on a held note is ignored.
  *
  * The notes are strewn the first time the floor has a size: a card that starts hidden
  * is laid out when it is first shown. Runs in the browser only.
  */
 import { bounds, findSpot, keepInside, rotate, settle, slow, slowTurn, swing, throwSpeed, toLocal, type Box, type Sample, type Vec } from './drag';
+import { grip } from './grip';
 
 /** How far the pointer moves before a press counts as a drag rather than a click. */
 const SLACK = 4;
@@ -137,8 +139,10 @@ export function strew(card: HTMLElement, floor: HTMLElement): void {
       if (note.classList.contains('title')) note.style.zIndex = String(++pile);
     });
 
+    // The pointer holding the note, so a second finger landing on it neither grabs it nor moves it.
+    const holder = grip();
     note.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;
+      if (e.button !== 0 || !holder.take(e.pointerId)) return;
       e.preventDefault();
       cancelAnimationFrame(flying);
       note.setPointerCapture(e.pointerId);
@@ -157,6 +161,7 @@ export function strew(card: HTMLElement, floor: HTMLElement): void {
       const trail: Sample[] = [];
 
       const move = (m: PointerEvent) => {
+        if (!holder.holds(m.pointerId)) return;
         if (!moved && Math.hypot(m.clientX - e.clientX, m.clientY - e.clientY) < SLACK) return;
         if (!moved) {
           moved = true;
@@ -215,6 +220,8 @@ export function strew(card: HTMLElement, floor: HTMLElement): void {
       };
 
       const drop = (u: PointerEvent) => {
+        if (!holder.holds(u.pointerId)) return;
+        holder.free(u.pointerId);
         note.removeEventListener('pointermove', move);
         note.removeEventListener('pointerup', drop);
         note.removeEventListener('pointercancel', drop);

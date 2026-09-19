@@ -20,12 +20,19 @@ const { tilt = 0, class: className = '' } = Astro.props;
   .lying {
     position: relative;
     transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--tilt));
-    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .3)) drop-shadow(0 5px 8px rgba(0, 0, 0, .28));
-    transition: filter .15s ease;
+    /*
+     * The shadow is a box-shadow, not a filter: drop-shadow. Everything lying in a drawer is a
+     * rectangle, so they look the same, but Safari does not repaint a filter's shadow properly
+     * under an element whose transform changes every frame, and a dragged note left a trail of
+     * stale shadows behind it. (A box-shadow blur is about twice a drop-shadow's radius.)
+     */
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 5px 16px rgba(0, 0, 0, .28);
+    transition: box-shadow .15s ease;
   }
   /* Picked up off the wood: the shadow falls further and softer. */
   .lying.is-lifted {
-    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)) drop-shadow(0 14px 18px rgba(0, 0, 0, .32));
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .25), 0 14px 36px rgba(0, 0, 0, .32);
   }
   @media (prefers-reduced-motion: reduce) {
     .lying { transform: translate(var(--dx, 0px), var(--dy, 0px)); transition: none; }
